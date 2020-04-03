@@ -8,7 +8,9 @@ select instructor.ID as ID, instructor.name as name, student_advisor.s_dept_name
 -- #4
 select SS.name from student as SS, section as S, takes as T where S.course_id = T.course_id and S.building = 'Painter' and S.year = 2009 and SS.ID = T.ID;
 -- #5
-select name from instructor where ID in (select ID from teaches where course_id in (select prereq_id from prereq where course_id in (select course_id from student as S natural join takes as T where S.name = 'Williams' and T.year = 2009)));
+create view tmp as select ID, title from teaches natural join course where course_id in (select prereq_id from prereq where course_id in (select course_id from student as S natural join takes as T where S.name = 'Williams' and T.year = 2009));
+select name, title  from tmp natural join instructor;
+
 -- #6
 delimiter $$
 create function letter_to_double(letter varchar(2)) returns float(2,1)
@@ -74,6 +76,7 @@ END$$
 delimiter ;
 
 -- #9
+-- this query is about which department gives better grades to students
 create view takes_student_all as select ID, name, dept_name, course_id, letter_to_double(grade) as grade from takes natural join student;
 
 create view gpa_all as select dept_name, ID, name, sum(grade * credits) / sum(credits) as average_GPA from takes_student_all natural join course group by ID;
