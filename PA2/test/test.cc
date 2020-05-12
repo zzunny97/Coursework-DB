@@ -1,27 +1,24 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-class A {
-	public:
-		virtual void print() = 0; 
-};
-
-class B : public A {
-	public:
-		virtual void print() {
-			cout << "class b" << endl;
-		}
-};
-
-class C: public A {
-	public:
-		virtual void print() {
-			cout << "class c" << endl;
-		}
-};
+void print_vec(vector<int>& v) {
+	for(auto iter = v.begin(); iter!=v.end(); iter++)
+		cout << *iter << " ";
+	cout << endl;
+}
 
 int main() {
+	vector<int> v;
+	for(int i=0; i<10; i++) {
+		v.push_back(i);
+	}
 
-	b.print();
+	print_vec(v);
+
+	v.insert(v.begin() + 1, 1000);
+
+	print_vec(v);
+
 }

@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
 
   ifstream input(argv[1]);
   bool flag = true;
+  int inst_num = 0;
 
   while(flag){
 	input >> command;
