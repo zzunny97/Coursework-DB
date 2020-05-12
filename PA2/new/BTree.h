@@ -41,6 +41,13 @@ class BTreeNode {
 			return type;
 		}
 
+		bool can_merge(BTreeNode* sibling) {
+			if(sibling == NULL) return false;
+			if(num_keys + sibling->num_keys <= NUM_KEYS)
+				return true;
+			return false;
+		}
+
 		BTreeNode* sibling(bool is_left) {
 			BTreeNode* parent = this->parent;
 			if(parent == NULL) {
@@ -284,10 +291,14 @@ class BTree {
 			// delete key from node n
 			for(int i=0; i<n->num_keys; i++) {
 				if(n->keys[i] == value) {
-					for(int j=i; j<n->num_keys; j++) {
+					for(int j=i; j<n->num_keys-1; j++) {
 						n->keys[j] = n->keys[j+1];	
 					}
+					for(int j=i+1; j<n->num_keys; j++) {
+						n->child[j] = n->child[j+1];
+					}
 					n->num_keys--;
+					break;
 				}
 			}
 			if(n->type == ROOT && n->num_keys==0) {
@@ -297,10 +308,70 @@ class BTree {
 				delete n;
 			}
 			else if(n->too_few()) {
-				BTreeNode* left_sibling = n->sibling(true); // true means left sibling flag
-				BTreeNode* right_sibling = n->sibling(false); // false means right sibling flag
-				if(n->CanMerge(left_sibling) || n->CanMerge(right_sibling)) {
-					
+				BTreeNode* prev = n->sibling(true); // true means left sibling flag
+				BTreeNode* next = n->sibling(false); // false means right sibling flag
+				BTreeNode* parent = n->parent;
+				int k;
+				if(n->can_merge(prev) || n->can_merge(next)) {
+					if(n->can_merge(prev)) {
+						// merge with left sibling
+						// find k, the value between prev and n in parent	
+						for(int i=0; i<parent->num_keys+1; i++) {
+							if(parent->child[i] == prev && parent->child[i+1] = n) {
+								k = parent->keys[i];
+								break;
+							}
+						}
+						if(n->type != LEAF) {
+							// append k and all pointers and values in n to prev
+							prev->keys[prev->num_keys++] = k;
+							int to_be_inserted = prev->num_keys;
+							for(int i=0; i<n->num_keys; i++) {
+								prev->keys[prev->num_keys++] = n->keys[i];
+							}
+							for(int i=0; i<n->num_keys+1; i++) {
+								prev->child[to_be_inserted++] = n->child[i];
+							}
+						}
+						else {
+							for(int i=0; i<n->num_keys; i++) {
+								prev->keys[prev->num_keys++] = n->keys[i];
+							}
+							prev->child[NUM_KEYS] = n->child[NUM_KEYS];
+						}
+
+					}
+					else {
+						// merge with right sibling
+						// find k, the value between prev and n in parent
+						for(int i=0; i<parent->num_keys+1; i++) {
+							if(parent->child[i] == n && parent->child[i+1] = next) {
+								k = parent->keys[i];
+								break;
+							}
+						}
+						if(next->type != LEAF) {
+							// append k and all pointers and values in n to prev
+							n->keys[n->num_keys++] = k;
+							int to_be_inserted = n->num_keys;
+							for(int i=0; i<next->num_keys; i++) {
+								n->keys[n->num_keys++] = next->keys[i];
+							}
+							for(int i=0; i<next->num_keys+1; i++) {
+								n->child[to_be_inserted++] = next->child[i];
+							}
+						}
+						else {
+							for(int i=0; i<next->num_keys; i++) {
+								n->keys[n->num_keys++] = next->keys[i];
+							}
+							n->child[NUM_KEYS] = next->child[NUM_KEYS];
+						}
+					}
+				}
+				else {
+					// redistribute
+
 				}
 			}
 		}
