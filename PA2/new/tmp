@@ -1,0 +1,208 @@
+[INST]: INSERT: 1
+cur node print
+
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 1
+1, 
+[INST]: INSERT: 2
+cur node print
+1 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 2
+1, 2, 
+[INST]: INSERT: 3
+cur node print
+1 2 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 3
+1, 2, 3, 
+[INST]: INSERT: 4
+cur node print
+1 2 3 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 4
+1, 2, 3, 4, 
+[INST]: INSERT: 5
+cur node print
+1 2 3 4 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 5
+1, 2, 3, 4, 5, 
+[INST]: INSERT: 6
+cur node print
+1 2 3 4 5 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 6
+1, 2, 3, 4, 5, 6, 
+[INST]: INSERT: 7
+cur node print
+1 2 3 4 5 6 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 7
+1, 2, 3, 4, 5, 6, 7, 
+[INST]: INSERT: 8
+cur node print
+1 2 3 4 5 6 7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 8
+1, 2, 3, 4, 5, 6, 7, 8, 
+[INST]: INSERT: 9
+cur node print
+1 2 3 4 5 6 7 8 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 9
+1, 2, 3, 4, 5, 6, 7, 8, 9, 
+[INST]: INSERT: 10
+cur node print
+1 2 3 4 5 6 7 8 9 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 10
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+[INST]: INSERT: 11
+cur node print
+1 2 3 4 5 6 7 8 9 10 
+overfull issue, split first...
+insert in parent root changes
+print inserted node
+[INST]: PRINT_LEAF_NODE: 11
+7, 8, 9, 10, 11, 
+[INST]: INSERT: 12
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 12
+7, 8, 9, 10, 11, 12, 
+[INST]: INSERT: 13
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 13
+7, 8, 9, 10, 11, 12, 13, 
+[INST]: INSERT: 14
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 14
+7, 8, 9, 10, 11, 12, 13, 14, 
+[INST]: INSERT: 15
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 15
+7, 8, 9, 10, 11, 12, 13, 14, 15, 
+[INST]: INSERT: 16
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 16
+7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+[INST]: INSERT: 17
+cur node print
+7 
+overfull issue, split first...
+print inserted node
+[INST]: PRINT_LEAF_NODE: 17
+[INST]: INSERT: 18
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 18
+7, 8, 9, 10, 11, 12, 18, 
+[INST]: INSERT: 19
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 19
+7, 8, 9, 10, 11, 12, 18, 19, 
+[INST]: INSERT: 20
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 20
+7, 8, 9, 10, 11, 12, 18, 19, 20, 
+[INST]: INSERT: 21
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 21
+7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 
+[INST]: INSERT: 22
+cur node print
+7 
+overfull issue, split first...
+print inserted node
+[INST]: PRINT_LEAF_NODE: 22
+[INST]: INSERT: 23
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 23
+7, 8, 9, 10, 11, 12, 23, 
+[INST]: INSERT: 24
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 24
+7, 8, 9, 10, 11, 12, 23, 24, 
+[INST]: INSERT: 25
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 25
+7, 8, 9, 10, 11, 12, 23, 24, 25, 
+[INST]: INSERT: 26
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 26
+7, 8, 9, 10, 11, 12, 23, 24, 25, 26, 
+[INST]: INSERT: 27
+cur node print
+7 
+overfull issue, split first...
+print inserted node
+[INST]: PRINT_LEAF_NODE: 27
+[INST]: INSERT: 28
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 28
+7, 8, 9, 10, 11, 12, 28, 
+[INST]: INSERT: 29
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 29
+7, 8, 9, 10, 11, 12, 28, 29, 
+[INST]: INSERT: 30
+cur node print
+7 
+insert in leaf now
+print inserted node
+[INST]: PRINT_LEAF_NODE: 30
+7, 8, 9, 10, 11, 12, 28, 29, 30, 
