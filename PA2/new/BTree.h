@@ -317,7 +317,7 @@ class BTree {
 						// merge with left sibling
 						// find k, the value between prev and n in parent	
 						for(int i=0; i<parent->num_keys+1; i++) {
-							if(parent->child[i] == prev && parent->child[i+1] = n) {
+							if(parent->child[i] == prev && parent->child[i+1] == n) {
 								k = parent->keys[i];
 								break;
 							}
@@ -347,7 +347,7 @@ class BTree {
 						// merge with right sibling
 						// find k, the value between n and next in parent
 						for(int i=0; i<parent->num_keys+1; i++) {
-							if(parent->child[i] == n && parent->child[i+1] = next) {
+							if(parent->child[i] == n && parent->child[i+1] == next) {
 								k = parent->keys[i];
 								break;
 							}
@@ -379,7 +379,7 @@ class BTree {
 						// find k, the value between prev and n in parent	
 						int k_idx;
 						for(int i=0; i<parent->num_keys+1; i++) {
-							if(parent->child[i] == prev && parent->child[i+1] = n) {
+							if(parent->child[i] == prev && parent->child[i+1] == n) {
 								k = parent->keys[i];
 								k_idx = i;
 								break;
@@ -413,7 +413,7 @@ class BTree {
 						// n -> next:
 						int k_idx;
 						for(int i=0; i<parent->num_keys+1; i++) {
-							if(parent->child[i] == n && parent->child[i+1] = next) {
+							if(parent->child[i] == n && parent->child[i+1] == next) {
 								k = parent->keys[i];
 								k_idx = i;
 								break;
