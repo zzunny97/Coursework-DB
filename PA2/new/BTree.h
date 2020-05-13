@@ -311,7 +311,7 @@ class BTree {
 				BTreeNode* prev = n->sibling(true); // true means left sibling flag
 				BTreeNode* next = n->sibling(false); // false means right sibling flag
 				BTreeNode* parent = n->parent;
-				int k;
+				long long k;
 				if(n->can_merge(prev) || n->can_merge(next)) {
 					if(n->can_merge(prev)) {
 						// merge with left sibling
@@ -339,11 +339,13 @@ class BTree {
 							}
 							prev->child[NUM_KEYS] = n->child[NUM_KEYS];
 						}
+						delete_entry(n->parent, k, n);
+						delete n;
 
 					}
 					else {
 						// merge with right sibling
-						// find k, the value between prev and n in parent
+						// find k, the value between n and next in parent
 						for(int i=0; i<parent->num_keys+1; i++) {
 							if(parent->child[i] == n && parent->child[i+1] = next) {
 								k = parent->keys[i];
@@ -351,7 +353,7 @@ class BTree {
 							}
 						}
 						if(next->type != LEAF) {
-							// append k and all pointers and values in n to prev
+							// append k and all pointers and values in next to n
 							n->keys[n->num_keys++] = k;
 							int to_be_inserted = n->num_keys;
 							for(int i=0; i<next->num_keys; i++) {
@@ -367,10 +369,83 @@ class BTree {
 							}
 							n->child[NUM_KEYS] = next->child[NUM_KEYS];
 						}
+						delete_entry(next->parent, k, next);
+						delete next;
 					}
 				}
 				else {
 					// redistribute
+					if(prev != NULL) {
+						// find k, the value between prev and n in parent	
+						int k_idx;
+						for(int i=0; i<parent->num_keys+1; i++) {
+							if(parent->child[i] == prev && parent->child[i+1] = n) {
+								k = parent->keys[i];
+								k_idx = i;
+								break;
+							}
+						}
+
+						if(n->type != LEAF) {
+							BTreeNode* last_ptr = prev->child[prev->num_keys];
+							long long  last_val = prev->keys[prev->num_keys-1];
+							prev->num_keys--;
+							for(int i=n->num_keys-1; i>=0; i--) n->keys[i+1] = n->keys[i];
+							for(int i=n->num_keys; i>=0; i--)   n->child[i+1] = n->child[i];
+							n->keys[0] = k;
+							n->child[0] = last_ptr;
+							n->num_keys++;
+							parent->keys[k_idx] = last_val;
+						}
+						else {
+							long long last_val = prev->keys[prev->num_keys-1];
+							prev->num_keys--;
+							for(int i=n->num_keys-1; i>=0; i--) n->keys[i+1] = n->keys[i];
+							n->keys[0] = last_val;	
+							n->num_keys++;
+							parent->keys[k_idx] = last_val;
+						}
+					}
+
+					else if(next != NULL) {
+						// find k, the value between prev and n in parent	
+						// prev -> n
+						// n -> next:
+						int k_idx;
+						for(int i=0; i<parent->num_keys+1; i++) {
+							if(parent->child[i] == n && parent->child[i+1] = next) {
+								k = parent->keys[i];
+								k_idx = i;
+								break;
+							}
+						}
+
+						if(next->type != LEAF) {
+							BTreeNode* last_ptr = n->child[n->num_keys];
+							long long  last_val = n->keys[n->num_keys-1];
+							n->num_keys--;
+							for(int i=next->num_keys-1; i>=0; i--) next->keys[i+1] = next->keys[i];
+							for(int i=next->num_keys; i>=0; i--)   next->child[i+1] = next->child[i];
+							next->keys[0] = k;
+							next->child[0] = last_ptr;
+							next->num_keys++;
+							parent->keys[k_idx] = last_val;
+						}
+						else {
+							long long last_val = n->keys[n->num_keys-1];
+							n->num_keys--;
+							for(int i=next->num_keys-1; i>=0; i--) next->keys[i+1] = next->keys[i];
+							next->keys[0] = last_val;	
+							next->num_keys++;
+							parent->keys[k_idx] = last_val;
+						}
+
+					}
+					else {
+						cout << "[ERROR] BTree::delete_entry(): prev and next both NULL" << endl;
+						exit(1);
+					}
+
 
 				}
 			}
