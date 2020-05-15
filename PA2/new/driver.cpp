@@ -38,6 +38,12 @@ int main(int argc, char* argv[]) {
        			input >> value;
 			bt.printLeafNode(value);
 			break;
+		case 'z':
+			    bt.printAllLeafNode();
+				break;
+		case 'y':
+				bt.printRoot();
+				break;
 		case 'q':
 			flag = false;
 			break;

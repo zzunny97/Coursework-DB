@@ -3,4 +3,4 @@ all:
 
 run:
 	g++ -o driver driver.cpp BTree.cpp
-	./driver input.txt
+	./driver input2.txt
