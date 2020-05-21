@@ -1,3 +1,4 @@
+import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -7,11 +8,12 @@ import java.sql.DriverManager;
 
 public class JDBCexample {
     public static void main(String[] args){
+
         try { 
             Class.forName ("com.mysql.jdbc.Driver"); 
             Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/dbbnam", "bnam", "changethis"); 
             Statement stmt = conn.createStatement(); 
-			/*
+			
 			PreparedStatement pstmt = conn.prepareSatement(
 					"insert into instructor values(?,?,?,?)");
 			pstmt.setString(1, "88877");
@@ -21,7 +23,7 @@ public class JDBCexample {
 			pstmt.executeUpdate();
 			pstmt.setString(1, "88878");
 			pstmt.executeUpdate();
-			*/
+			
 
             ResultSet rset = stmt.executeQuery(
                     "select ID, name, dept_name, salary " + 
