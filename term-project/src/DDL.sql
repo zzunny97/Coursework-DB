@@ -7,7 +7,7 @@ create table user
 	 access_history varchar(20),
 	 subscription_fee int(100),
 	 amount_due 	varchar(20),
-	 data_joined 	varchar(20),
+	 date_joined 	varchar(20),
 	 primary key(account_number)
 	);
 
@@ -23,6 +23,19 @@ create table provider
 	 amount_to_be_paid_provider int(100),
 	 date_joined 	varchar(20),
 	 primary key(account_number)
+	);
+
+create table item
+	(
+	 id				varchar(20),
+	 name			varchar(100),
+	 type			varchar(50),
+	 author			varchar(20),
+	 category		varchar(20),
+	 size			int(100),
+	 os				varchar(10),
+	 description	varchar(100)
+
 	);
 
 /*	

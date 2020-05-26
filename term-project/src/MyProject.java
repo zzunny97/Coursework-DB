@@ -7,6 +7,8 @@ public class MyProject {
 		Scanner sc = new Scanner(System.in);
 		int input;
 		System.out.println("Welcome to market place for file sharing!");
+		System.out.println("Subscription fee for user is $10 per month!");
+		System.out.println("Upload fee for provider is $1 per byte!");
 		System.out.print("As user(1) / provider(2): ");
 		int type = sc.nextInt();
 
@@ -24,21 +26,44 @@ public class MyProject {
 
 	public static void user_action() {
 		User user = new User();
+		Scanner sc = new Scanner(System.in);
+		int choice;
 		while(true) {
-			System.out.println("1) register");
-			System.out.println("2) login");
-			System.out.println("3) quit");
-			Scanner sc = new Scanner(System.in);
-			int choice = sc.nextInt();
-			if(choice == 1) {
-				user.register();
-			}
-			else if(choice == 2) {
-				user.login();
+			if(user.login) {
+				System.out.println("1) See all files");
+				System.out.println("2) Select category");
+				System.out.println("3) Download");
+				System.out.println("4) logout");
+				choice = sc.nextInt();
+				if(choice == 1) {
+					user.printAllItem();
+				}
+				else if(choice == 2) {
+					user.printAllCategory();
+				}
+				else if(choice == 3) {
+
+				}
+				else {
+					System.out.println("logout");
+					user.login = false;
+				}
 			}
 			else {
-				System.out.println("Bye");
-				System.exit(0);
+				System.out.println("1) register");
+				System.out.println("2) login");
+				System.out.println("3) quit");
+				choice = sc.nextInt();
+				if(choice == 1) {
+					user.register();
+				}
+				else if(choice == 2) {
+					user.login();
+				}
+				else {
+					System.out.println("Bye");
+					System.exit(0);
+				}
 			}
 		}
 
@@ -48,21 +73,44 @@ public class MyProject {
 
 	public static void provider_action() {
 		Provider provider = new Provider();
+		Scanner sc = new Scanner(System.in);
+		int choice;
 		while(true) {
-			System.out.println("1) register");
-			System.out.println("2) login");
-			System.out.println("3) quit");
-			Scanner sc = new Scanner(System.in);
-			int choice = sc.nextInt();
-			if(choice == 1) {
-				provider.register();
-			}
-			else if(choice == 2) {
-				provider.login();
+			if(provider.login) {
+				System.out.println("1) See all files");
+				System.out.println("2) Select category");
+				System.out.println("3) Upload");
+				System.out.println("4) logout");
+				choice = sc.nextInt();
+				if(choice == 1) {
+					provider.printAllItem();
+				}
+				else if(choice == 2) {
+					provider.printAllCategory();
+				}
+				else if(choice == 3) {
+					provider.upload();
+				}
+				else {
+					System.out.println("logout");
+					provider.login = false;
+				}
 			}
 			else {
-				System.out.println("Bye");
-				System.exit(0);
+				System.out.println("1) register");
+				System.out.println("2) login");
+				System.out.println("3) quit");
+				choice = sc.nextInt();
+				if(choice == 1) {
+					provider.register();
+				}
+				else if(choice == 2) {
+					provider.login();
+				}
+				else {
+					System.out.println("Bye");
+					System.exit(0);
+				}
 			}
 		}
 
