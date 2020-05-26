@@ -27,6 +27,7 @@ public class DBMS {
 	PreparedStatement pstmt;
 	ResultSet rs;
 	boolean login;
+	String name;
 
 	public DBMS() {
 		System.out.println("[DBMS constructor]");
@@ -34,6 +35,7 @@ public class DBMS {
 		pstmt = null;
 		rs = null;
 		login = false;
+		name = null;
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -55,9 +57,10 @@ public class DBMS {
 		} catch (Exception e) { }
 	}
 
-	void write_to_hub(String path) {
+	boolean write_to_hub(String path) {
+		boolean ret = true;
 		File inFile = new File(path);
-		File outFile = new File("./hub"+path);
+		File outFile = new File("./hub/"+path);
 		outFile.getParentFile().mkdirs();
 		System.out.println("in path: " + inFile);
 		System.out.println("out path: " + outFile);
@@ -76,30 +79,93 @@ public class DBMS {
 			}
 
 		} catch(FileNotFoundException e) {
+			ret = false;
 			e.printStackTrace();
 			
 		} catch(IOException e) {
+			ret = false;
 			e.printStackTrace();
 
 		} finally {
 			if(br != null) {
 				try { br.close(); }
 				catch(IOException e) {
+					ret = false;
 					e.printStackTrace();
 				}
 			}
 			if(bw != null) {
 				try { bw.close(); }
 				catch (IOException e) {
+					ret = false;
 					e.printStackTrace();
 				}
 			}
-
 		}
+		return ret;
 
 	}
 
 	void printAllItem() {
+		try {
+			String query = "select * from item";
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			System.out.println("id\tname\ttype\tauthor\tcategory\tsize\tos\tdescription");
+			while(rs.next()) {
+				String rid = rs.getString("id");
+				String rname  = rs.getString("name");
+				String rtype = rs.getString("type");
+				String rauthor = rs.getString("author");
+				String rcategory =  rs.getString("category");
+				int rsize = rs.getInt("size");
+				String ros =  rs.getString("os");
+				String rdescription = rs.getString("description");
+
+				System.out.println(rid +"\t"+rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+ros+"\t"+rdescription);
+			}
+
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+	}
+
+	void printByCategory() {
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Type category: " );
+		String category = sc.next();
+		try {
+			String query = "select * from item where category=?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, category);
+			rs = pstmt.executeQuery();
+
+			System.out.println("id\tname\ttype\tauthor\tcategory\tsize\tos\tdescription");
+			while(rs.next()) {
+				String rid = rs.getString("id");
+				String rname  = rs.getString("name");
+				String rtype = rs.getString("type");
+				String rauthor = rs.getString("author");
+				String rcategory =  rs.getString("category");
+				int rsize = rs.getInt("size");
+				String ros =  rs.getString("os");
+				String rdescription = rs.getString("description");
+
+				System.out.println(rid +"\t"+rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+ros+"\t"+rdescription);
+			}
+
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
 
 	}
 
@@ -180,6 +246,7 @@ class User extends DBMS {
 
 			if(rs.next()) {
 				String rname = rs.getString("name");
+				name = rname;
 				String access_history = rs.getString("access_history");
 				Date today = new Date();
 				SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -230,7 +297,9 @@ class User extends DBMS {
 				}
 				else {
 					System.out.println("already logined today, so history not need to be updated");
+					login = true;
 				}
+				System.out.println("Welcome " + name + "!");
 
 				/*
 				   String raddress = rs.getString("address");
@@ -318,6 +387,8 @@ class Provider extends DBMS {
 			rs = pstmt.executeQuery();
 
 			if(rs.next()) {
+				String rname = rs.getString("name");
+				name = rname;
 				/*
 				   String raddress = rs.getString("address");
 				String raccount_number = rs.getString("account_number");
@@ -326,9 +397,11 @@ class Provider extends DBMS {
 				System.out.println(rname + "\t" + raddress + "\t" + raccount_number +"\t" + rphone_number + "\t" + rbirthday);
 				*/
 				login = true;
+				System.out.println("Welcome " + name + "!");
 			}
 			else {
 				System.out.println("No such account number, sorry");
+				return;
 			}
 
 		} catch(SQLException sqle) {
@@ -341,10 +414,10 @@ class Provider extends DBMS {
 		
 	}
 
-	long getFileSize(String path) {
+	int getFileSize(String path) {
 		File file = new File(path);
 		if(file.exists()){
-			return file.length();
+			return (int)file.length();
 		}
 		else {
 			return -1;
@@ -358,7 +431,7 @@ class Provider extends DBMS {
 		System.out.println("upload");
 		System.out.print("Type file name you want to upload, e.g. /home/2016312029/[path]: ");
 		String file_path = sc.next();
-		long file_size = getFileSize(file_path);
+		int file_size = getFileSize(file_path);
 		if(file_size > 0) {
 			System.out.println("Calculated file size: " + String.valueOf(file_size) + " bytes");
 			String file_id, file_name, file_type, author, file_category, os, description;
@@ -375,11 +448,32 @@ class Provider extends DBMS {
 			System.out.print("Short description: ");
 			description = sc.next();
 
-			write_to_hub(file_path);
-
-			
-
-
+			boolean write_result = write_to_hub(file_path);
+			if(!write_result) {
+				System.out.println("Failed to upload file to hub, please try again");
+				return;
+			}
+			System.out.println("Successfully uploaded to hub");
+			try {
+				pstmt = conn.prepareStatement(
+						"insert into item (id, name, type, author, category, size, os, description) values(?,?,?,?,?,?,?,?)");
+				pstmt.setString(1, file_id);
+				pstmt.setString(2, file_name);
+				pstmt.setString(3, file_type);
+				pstmt.setString(4, name);
+				pstmt.setString(5, file_category);
+				pstmt.setInt(6, file_size);
+				pstmt.setString(7, os);
+				pstmt.setString(8, description);
+				pstmt.executeUpdate();
+				System.out.println("Query updated");
+			} catch(SQLException sqle) {
+				System.out.println("SQLException: " + sqle);
+				System.exit(1);
+			} catch(Exception e) {
+				System.out.println("Exception: " + e);
+				System.exit(1);
+			}
 		}
 		else {
 			System.out.println("Oops! File not exists, Pleas check again");

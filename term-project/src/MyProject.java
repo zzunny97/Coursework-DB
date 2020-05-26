@@ -30,8 +30,8 @@ public class MyProject {
 		int choice;
 		while(true) {
 			if(user.login) {
-				System.out.println("1) See all files");
-				System.out.println("2) Select category");
+				System.out.println("1) View all files");
+				System.out.println("2) View by category");
 				System.out.println("3) Download");
 				System.out.println("4) logout");
 				choice = sc.nextInt();
@@ -39,7 +39,7 @@ public class MyProject {
 					user.printAllItem();
 				}
 				else if(choice == 2) {
-					user.printAllCategory();
+					user.printByCategory();
 				}
 				else if(choice == 3) {
 
@@ -77,8 +77,8 @@ public class MyProject {
 		int choice;
 		while(true) {
 			if(provider.login) {
-				System.out.println("1) See all files");
-				System.out.println("2) Select category");
+				System.out.println("1) View all files");
+				System.out.println("2) View by category"); 
 				System.out.println("3) Upload");
 				System.out.println("4) logout");
 				choice = sc.nextInt();
@@ -86,7 +86,7 @@ public class MyProject {
 					provider.printAllItem();
 				}
 				else if(choice == 2) {
-					provider.printAllCategory();
+					provider.printByCategory();
 				}
 				else if(choice == 3) {
 					provider.upload();
