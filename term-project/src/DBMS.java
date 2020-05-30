@@ -19,6 +19,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+
 
 
 public class DBMS {
@@ -285,12 +287,54 @@ class User extends DBMS {
 
 	}
 
+	boolean check(String file_id) {
+		try {
+			String select_history_query = "select access_history from user where id = ?";
+			pstmt = conn.prepareStatement(select_history_query);
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+
+			String[] substr = file_id.split("_");
+			String target_search = substr[1] + "_" + substr[2];
+			//System.out.println("Target search: " + target_search);
+			if(rs.next()) {
+				String cur_access_history = rs.getString("access_history");	
+				if(cur_access_history == null) 
+					return false;
+				else {
+					String[] history_split = cur_access_history.split(" ");
+					for(String tmp : history_split) {
+						//System.out.println("Tmp: " + tmp);
+						if(tmp.contains(target_search)) {
+							return true;
+						}
+					}
+				}
+			}
+
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+		return false;
+
+
+	}
+
 	void download() {
 		System.out.println("download");
 		Scanner sc = new Scanner(System.in);
 
 		System.out.print("Type the file ID you want to download: ");
 		String file_id = sc.nextLine();
+
+		if(check(file_id)) {
+			System.out.println("You already downloaded this item, back to menu");
+			return;
+		}
 
 		try {
 			String query = "select * from item where id = ?";
@@ -316,6 +360,7 @@ class User extends DBMS {
 				pstmt = conn.prepareStatement(update_query);
 				pstmt.setInt(1, rdownloaded);
 				pstmt.setString(2, rid);
+				pstmt.executeUpdate();
 
 				// update earn of provider
 				String query2 = "select earn from provider where id= ?";
@@ -324,21 +369,45 @@ class User extends DBMS {
 				rs = pstmt.executeQuery();
 
 				if(rs.next()) {
-					int cur_earn = rs.getInt("earn");
-					int unit_earn = 25 / rsize;
+					float cur_earn = rs.getInt("earn");
+					float unit_earn = (float)25 / rsize;
 					String update_query2 = "update provider set earn=? where id=?";
 					pstmt = conn.prepareStatement(update_query2);
-					pstmt.setInt(1, cur_earn + unit_earn);
+					pstmt.setFloat(1, cur_earn + unit_earn);
 					pstmt.setString(2, rauthor);
-					rs = pstmt.executeQuery();
+					pstmt.executeUpdate();
 				}
 
 				else {
 					System.out.println("download error");
 					System.exit(1);
-
 				}
+
+				// now it's time to update access_history in user table
+				Date curtime = new Date();
+				SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
+
+				String select_history_query = "select access_history from user where id = ?";
+				pstmt = conn.prepareStatement(select_history_query);
+				pstmt.setString(1, id);
+				rs = pstmt.executeQuery();
 				
+				if(rs.next()) {
+					String cur_access_history = rs.getString("access_history");	
+					if(cur_access_history == null) 
+						cur_access_history = date.format(curtime)+"_"+rid+ " ";
+					else 
+						cur_access_history += date.format(curtime)+"_"+rid+" ";
+					String update_history_query = "update user set access_history=? where id=?";
+					pstmt = conn.prepareStatement(update_history_query);
+					pstmt.setString(1, cur_access_history);
+					pstmt.setString(2, id);
+					pstmt.executeUpdate();
+				}
+				else {
+					System.out.println("download error");
+				}
+
 
 
 
@@ -363,7 +432,7 @@ class Provider extends DBMS {
 	String id, password, name, address, phone_number, birthday, account_number;
 	int joining_fee;
 	int amount_due_admin;
-	int earn; // amount to be paird to provider
+	float earn; // amount to be paird to provider
 	Provider() {
 		login = false;
 		System.out.println("Provider constructor");
@@ -407,7 +476,7 @@ class Provider extends DBMS {
 			pstmt.setString(7, birthday);
 			pstmt.setInt(8, joining_fee);
 			pstmt.setInt(9, amount_due_admin);
-			pstmt.setInt(10, earn); 
+			pstmt.setFloat(10, earn); 
 			pstmt.setString(11, date.format(today)); // date joined
 			pstmt.executeUpdate();
 			System.out.println("Query updated");
@@ -485,12 +554,12 @@ class Provider extends DBMS {
 			System.out.println("Calculated file size: " + String.valueOf(file_size) + " bytes");
 			String file_id, file_name, file_type, author, file_category, architecture, os, description;
 			Date now = new Date();
-			//SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+			SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 			
 
 			System.out.print("File name: ");
 			file_name = sc.nextLine();
-			file_id = now.toString() + "_" + id + "_" + file_name; 
+			file_id = date.format(now) + "_" + id + "_" + file_name; 
 			System.out.print("File type(program, video, etc..): ");
 			file_type = sc.nextLine();
 			System.out.print("File category: ");
@@ -521,10 +590,29 @@ class Provider extends DBMS {
 				pstmt.setString(6, architecture);
 				pstmt.setString(7, os);
 				pstmt.setString(8, description);
-				pstmt.setString(9, now.toString());
+				pstmt.setString(9, date.format(now));
 				pstmt.setInt(10, file_size);
 				pstmt.setInt(11, 0);
 				pstmt.executeUpdate();
+
+				String provider_query = "select amount_due_admin from provider where id = ?";
+				pstmt = conn.prepareStatement(provider_query);
+				pstmt.setString(1, id);
+				rs = pstmt.executeQuery();
+				if(rs.next()) {
+					int cur_amount_due_admin = rs.getInt("amount_due_admin");
+					String provider_update_query = "update provider set amount_due_admin = ? where id = ?";
+					pstmt = conn.prepareStatement(provider_update_query);
+					pstmt.setInt(1, cur_amount_due_admin + file_size);
+					pstmt.setString(2, id);
+					pstmt.executeUpdate();
+				}
+				else {
+					System.out.println("Error in upload");
+					System.exit(1);
+				}
+
+
 				System.out.println("Query updated");
 			} catch(SQLException sqle) {
 				System.out.println("SQLException: " + sqle);
@@ -538,6 +626,61 @@ class Provider extends DBMS {
 			System.out.println("Oops! File not exists, Pleas check again");
 			return;
 		}
+
+	}
+
+	void update() {
+
+
+	}
+
+	void printStat() {
+		try {
+			ArrayList<String> targetList = new ArrayList<>();
+			
+			String select_my_upload = "select id from item where author = ?";
+			pstmt = conn.prepareStatement(select_my_upload);
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String item_id = rs.getString("id");
+				String item_id_split[] = item_id.split("_");
+				String target_search = item_id_split[1] + "_" + item_id_split[2];
+				String file_name = item_id_split[2];
+				targetList.add(target_search);
+			}
+
+			String find_in_history = "select id, access_history from user";
+			pstmt = conn.prepareStatement(find_in_history);
+			rs = pstmt.executeQuery();
+
+			while(rs.next()) {
+				String rid = rs.getString("id");
+				String raccess_history = rs.getString("access_history");
+				String[] h_split = raccess_history.split(" ");
+				for(String tmp : targetList) {
+					for(String tmp2 : h_split) {
+						String file_name[] = tmp.split("_");
+						System.out.println("========"+file_name[1]+"========");
+						if(tmp2.contains(tmp)) {
+							System.out.println("- " + rid);
+						}
+					}
+				}
+
+			}
+
+
+
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+
+
 
 	}
 }

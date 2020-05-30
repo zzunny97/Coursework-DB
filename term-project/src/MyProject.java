@@ -84,7 +84,9 @@ public class MyProject {
 				System.out.println("1) View all files");
 				System.out.println("2) View by category"); 
 				System.out.println("3) Upload");
-				System.out.println("4) logout");
+				System.out.println("4) Update file");
+				System.out.println("5) See statistics");
+				System.out.println("5) logout");
 				choice = sc.nextInt();
 				if(choice == 1) {
 					provider.printAllItem();
@@ -94,6 +96,13 @@ public class MyProject {
 				}
 				else if(choice == 3) {
 					provider.upload();
+				}
+				else if(choice == 4) {
+					provider.update();
+				}
+				else if(choice == 5) {
+					provider.printStat();
+
 				}
 				else {
 					System.out.println("logout");

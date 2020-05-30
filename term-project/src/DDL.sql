@@ -7,7 +7,7 @@ create table user
 	 account_number varchar(20),
 	 phone_number 	varchar(20),
 	 birthday    	varchar(20),
-	 access_history varchar(20),
+	 access_history varchar(1000),
 	 subscription_fee int(100),
 	 amount_due 	int(100),
 	 date_joined 	varchar(20),
@@ -24,7 +24,7 @@ create table provider
 	 birthday    	varchar(20),
 	 joining_fee	int(100),
 	 amount_due_admin		int(100),
-	 earn 			int(100),
+	 earn 			float(100, 5),
 	 date_joined 	varchar(20),
 	 primary key(id)
 	);
