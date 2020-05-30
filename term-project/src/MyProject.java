@@ -86,7 +86,8 @@ public class MyProject {
 				System.out.println("3) Upload");
 				System.out.println("4) Update file");
 				System.out.println("5) See statistics");
-				System.out.println("5) logout");
+				System.out.println("6) Delete account");
+				System.out.println("7) logout");
 				choice = sc.nextInt();
 				if(choice == 1) {
 					provider.printAllItem();
@@ -102,7 +103,9 @@ public class MyProject {
 				}
 				else if(choice == 5) {
 					provider.printStat();
-
+				}
+				else if(choice == 6) {
+					provider.delete_account();
 				}
 				else {
 					System.out.println("logout");

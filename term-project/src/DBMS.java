@@ -62,10 +62,12 @@ public class DBMS {
 		} catch (Exception e) { }
 	}
 
-	boolean write_to_hub(String path) {
+	boolean write_to_hub(String path, String file_id) {
 		boolean ret = true;
 		File inFile = new File(path);
-		File outFile = new File("./hub/"+path);
+		String ss[] = file_id.split("_");
+		String outlink = ss[1]+"_"+ss[2];
+		File outFile = new File("./hub/"+outlink);
 		outFile.getParentFile().mkdirs();
 		System.out.println("in path: " + inFile);
 		System.out.println("out path: " + outFile);
@@ -82,7 +84,6 @@ public class DBMS {
 				bw.newLine();
 				bw.flush();
 			}
-
 		} catch(FileNotFoundException e) {
 			ret = false;
 			e.printStackTrace();
@@ -108,8 +109,8 @@ public class DBMS {
 			}
 		}
 		return ret;
-
 	}
+
 
 	void printAllItem() {
 		try {
@@ -197,6 +198,52 @@ class User extends DBMS {
 	String id, password, name, address, account_number, phone_number, birthday;
 	User() {
 		login = false;
+	}
+
+	boolean get_from_hub(String path, String file_name) {
+		boolean ret = true;
+		File inFile = new File(path);
+		File outFile = new File("./"+id+"/downloaded/"+file_name);
+		System.out.println("Downloaded path: " + "./"+id+"/downloaded/"+file_name);
+		outFile.getParentFile().mkdirs();
+
+		BufferedReader br = null;
+		BufferedWriter bw = null;
+
+		try {
+			br = new BufferedReader(new FileReader(inFile));
+			bw = new BufferedWriter(new FileWriter(outFile));
+			String line;
+			while((line = br.readLine()) != null) {
+				bw.write(line);	
+				bw.newLine();
+				bw.flush();
+			}
+		} catch(FileNotFoundException e) {
+			ret = false;
+			e.printStackTrace();
+			
+		} catch(IOException e) {
+			ret = false;
+			e.printStackTrace();
+
+		} finally {
+			if(br != null) {
+				try { br.close(); }
+				catch(IOException e) {
+					ret = false;
+					e.printStackTrace();
+				}
+			}
+			if(bw != null) {
+				try { bw.close(); }
+				catch (IOException e) {
+					ret = false;
+					e.printStackTrace();
+				}
+			}
+		}
+		return ret;
 	}
 
 	void register() {
@@ -327,6 +374,7 @@ class User extends DBMS {
 	void download() {
 		System.out.println("download");
 		Scanner sc = new Scanner(System.in);
+		boolean success = false;
 
 		System.out.print("Type the file ID you want to download: ");
 		String file_id = sc.nextLine();
@@ -403,15 +451,11 @@ class User extends DBMS {
 					pstmt.setString(1, cur_access_history);
 					pstmt.setString(2, id);
 					pstmt.executeUpdate();
+					success = true;
 				}
 				else {
 					System.out.println("download error");
 				}
-
-
-
-
-
 			} else {
 				System.out.println("No such item");
 			}
@@ -422,6 +466,11 @@ class User extends DBMS {
 		} catch(Exception e) {
 			System.out.println("Exception: " + e);
 			System.exit(1);
+		}
+
+		if(success) {
+			String ss[] = file_id.split("_");
+			get_from_hub("./hub/"+ ss[1]+"_"+ss[2], ss[1]+"_"+ss[2]);
 		}
 		
 		
@@ -571,14 +620,14 @@ class Provider extends DBMS {
 			System.out.print("Short description: ");
 			description = sc.nextLine();
 
-			/*
-			boolean write_result = write_to_hub(file_path);
+			
+			boolean write_result = write_to_hub(file_path, file_id);
 			if(!write_result) {
 				System.out.println("Failed to upload file to hub, please try again");
 				return;
 			}
-			*/
-			//System.out.println("Successfully uploaded to hub");
+			
+			System.out.println("Successfully uploaded to hub");
 			try {
 				pstmt = conn.prepareStatement(
 						"insert into item (id, name, type, author, category, architecture, os, description, updated,size, downloaded) values(?,?,?,?,?,?,?,?,?,?,?)");
@@ -642,6 +691,13 @@ class Provider extends DBMS {
 			pstmt = conn.prepareStatement(select_my_upload);
 			pstmt.setString(1, id);
 			rs = pstmt.executeQuery();
+			rs.last();
+			int rowCount = rs.getRow();
+			if(rowCount == 0) {
+				System.out.println("You've not uploaded any item yet");
+				return;
+			}
+			rs.first();
 			while(rs.next()) {
 				String item_id = rs.getString("id");
 				String item_id_split[] = item_id.split("_");
@@ -679,8 +735,35 @@ class Provider extends DBMS {
 			System.out.println("Exception: " + e);
 			System.exit(1);
 		}
+	}
 
+	void delete_account() {
+		System.out.println("If you delete your account, your information, items uploaded will all deleted");
+		System.out.print("[Y/N]: ");
+		Scanner sc = new Scanner(System.in);
+		String answer = sc.nextLine();
+		if(answer.equals("Y")) {
+			try {
+				String delete_provider = "delete from provider where id = ?";
+				pstmt = conn.prepareStatement(delete_provider);
+				pstmt.setString(1, id);
+				pstmt.executeUpdate();
 
-
+				String delete_item = "delete from item where author = ?";
+				pstmt = conn.prepareStatement(delete_item);
+				pstmt.setString(1, id);
+				pstmt.executeUpdate();
+				login = false;
+			} catch(SQLException sqle) {
+				System.out.println("SQLException: " + sqle);
+				System.exit(1);
+			} catch(Exception e) {
+				System.out.println("Exception: " + e);
+				System.exit(1);
+			}
+		}
+		else {
+			System.out.println("Ok good choice");
+		}
 	}
 }
