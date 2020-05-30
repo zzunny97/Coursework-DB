@@ -28,6 +28,7 @@ public class DBMS {
 	ResultSet rs;
 	boolean login;
 	String name;
+	int SUBSCRIPTION_FEE, JOINING_FEE;
 
 	public DBMS() {
 		System.out.println("[DBMS constructor]");
@@ -36,6 +37,8 @@ public class DBMS {
 		rs = null;
 		login = false;
 		name = null;
+		SUBSCRIPTION_FEE = 10;
+		JOINING_FEE = 20;
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -112,18 +115,19 @@ public class DBMS {
 			pstmt = conn.prepareStatement(query);
 			rs = pstmt.executeQuery();
 
-			System.out.println("id\tname\ttype\tauthor\tcategory\tsize\tos\tdescription");
+			System.out.println("id\tname\ttype\tauthor\tcategory\tarchitecure\tos\tsize\tdescription");
 			while(rs.next()) {
 				String rid = rs.getString("id");
 				String rname  = rs.getString("name");
 				String rtype = rs.getString("type");
 				String rauthor = rs.getString("author");
 				String rcategory =  rs.getString("category");
-				int rsize = rs.getInt("size");
+				String rarchitecture =  rs.getString("architecture");
 				String ros =  rs.getString("os");
+				int rsize = rs.getInt("size");
 				String rdescription = rs.getString("description");
 
-				System.out.println(rid +"\t"+rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+ros+"\t"+rdescription);
+				System.out.println(rid+"\t"+rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+rarchitecture+"\t"+ros+"\t"+String.valueOf(rsize)+"\t"+rdescription);
 			}
 
 		} catch(SQLException sqle) {
@@ -137,27 +141,42 @@ public class DBMS {
 
 	void printByCategory() {
 		Scanner sc = new Scanner(System.in);
-		System.out.print("Type category: " );
-		String category = sc.next();
+		System.out.print("Type category (If you want view all existing categories in current market, type 0): " );
+		String category = sc.nextLine();
+
+
 		try {
-			String query = "select * from item where category=?";
-			pstmt = conn.prepareStatement(query);
-			pstmt.setString(1, category);
-			rs = pstmt.executeQuery();
-
-			System.out.println("id\tname\ttype\tauthor\tcategory\tsize\tos\tdescription");
-			while(rs.next()) {
-				String rid = rs.getString("id");
-				String rname  = rs.getString("name");
-				String rtype = rs.getString("type");
-				String rauthor = rs.getString("author");
-				String rcategory =  rs.getString("category");
-				int rsize = rs.getInt("size");
-				String ros =  rs.getString("os");
-				String rdescription = rs.getString("description");
-
-				System.out.println(rid +"\t"+rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+ros+"\t"+rdescription);
+			if(category.equals("0")) {
+				String q = "select distinct category from item";
+				pstmt = conn.prepareStatement(q);
+				rs = pstmt.executeQuery();
+				while(rs.next()) {
+					System.out.println(rs.getString("category"));
+				}
+				System.out.println();
 			}
+			else {
+				String query = "select * from item where category=?";
+				pstmt = conn.prepareStatement(query);
+				pstmt.setString(1, category);
+				rs = pstmt.executeQuery();
+
+				System.out.println("id\tname\ttype\tauthor\tcategory\tarchitecure\tos\tsize\tdescription");
+				while(rs.next()) {
+					String rid  = rs.getString("id");
+					String rname  = rs.getString("name");
+					String rtype = rs.getString("type");
+					String rauthor = rs.getString("author");
+					String rcategory =  rs.getString("category");
+					String rarchitecture =  rs.getString("architecture");
+					String ros =  rs.getString("os");
+					int rsize = rs.getInt("size");
+					String rdescription = rs.getString("description");
+
+					System.out.println(rid+"\t"+rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+rarchitecture+"\t"+ros+"\t"+String.valueOf(rsize)+"\t"+rdescription);
+				}
+			}
+
 
 		} catch(SQLException sqle) {
 			System.out.println("SQLException: " + sqle);
@@ -169,58 +188,51 @@ public class DBMS {
 
 	}
 
-	void printAllCategory() {
-
-	}
-
-
-	void download() {
-		System.out.println("download");
-	}
-
 }
 
 
 class User extends DBMS {
+	String id, password, name, address, account_number, phone_number, birthday;
 	User() {
 		login = false;
-		System.out.println("User constructor");
 	}
 
 	void register() {
-		System.out.println("User register");
 		Scanner sc = new Scanner(System.in);
+		System.out.print("ID: ");
+		id = sc.nextLine();
+		System.out.print("PASSWD: ");
+		password = sc.nextLine();
 		System.out.print("name: ");
-		String name = sc.next();
+		name = sc.nextLine();
 		System.out.print("address: ");
-		String address = sc.next();
+		address = sc.nextLine();
 		System.out.print("account number: ");
-		String account_number = sc.next();
+		account_number = sc.nextLine();
 		System.out.print("phone_number: ");
-		String phone_number = sc.next();
+		phone_number = sc.nextLine();
 		System.out.print("birthday: ");
-		String birthday = sc.next();
-
-
+		birthday = sc.nextLine();
+		int subscription_fee = SUBSCRIPTION_FEE;
+		int amount_due = 0;
+		amount_due += subscription_fee;
 
 		Date today = new Date();
 		SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
-
-
 		try {
-			//PreparedStatement pstmt = conn.prepareStatement("insert into user values(?, ?, ?, ?,?,?,?,?,?)");
 			pstmt = conn.prepareStatement(
-					"insert into user (name, address, account_number, phone_number, birthday, date_joined) values(?, ?, ?, ?,?, ?)");
-			pstmt.setString(1, name);
-			pstmt.setString(2, address);
-			pstmt.setString(3, account_number);
-			pstmt.setString(4, phone_number);
-			pstmt.setString(5, birthday);
-			//pstmt.setString(6, NULL); // access history
-			//pstmt.setString(7, NULL); // subscription fee
-			//pstmt.setString(8, NULL); // amount due
-			pstmt.setString(6, date.format(today)); // date joined
+					"insert into user (id, password, name, address, account_number, phone_number, birthday, subscription_fee, amount_due, date_joined) values(?,?,?,?,?,?,?,?,?,?)");
+			pstmt.setString(1, id);
+			pstmt.setString(2, password);
+			pstmt.setString(3, name);
+			pstmt.setString(4, address);
+			pstmt.setString(5, account_number);
+			pstmt.setString(6, phone_number);
+			pstmt.setString(7, birthday);
+			pstmt.setInt(8, subscription_fee);
+			pstmt.setInt(9, amount_due);
+			pstmt.setString(10, date.format(today)); // date joined
 			pstmt.executeUpdate();
 			System.out.println("Query updated");
 		} catch(SQLException sqle) {
@@ -233,81 +245,33 @@ class User extends DBMS {
 	}
 
 	void login() {
-		System.out.println("User login");
+		String input_id, input_password;
 		Scanner sc = new Scanner(System.in);
-		System.out.print("account number: " );
-		String account_number = sc.next();
+		System.out.print("ID: " );
+		input_id = sc.next();
+		System.out.print("PASSWORD: " );
+		input_password = sc.next();
 
 		try {
-			String query = "select * from user where account_number = ?";
+			String query = "select * from user where id = ? and password = ?";
 			pstmt = conn.prepareStatement(query);
-			pstmt.setString(1, account_number);
+			pstmt.setString(1, input_id);
+			pstmt.setString(2, input_password);
 			rs = pstmt.executeQuery();
 
 			if(rs.next()) {
-				String rname = rs.getString("name");
-				name = rname;
-				String access_history = rs.getString("access_history");
-				Date today = new Date();
-				SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
-				boolean should_update_history = false;
-
-				if(access_history == null) {
-					should_update_history = true;
-					access_history = date.format(today);
-				}
-				else {
-					String[] all_dates = access_history.split(" ");
-					boolean flag = false;
-					for(String val : all_dates) {
-						System.out.println("val: " + val);
-						if(val.equals(date.format(today))) {
-							flag = true;
-							break;
-						}
-					}
-					if(flag == false) {
-						access_history += (" "+date.format(today));
-						should_update_history = true;
-					}
-				}
-
-					
-
-				/*
-				System.out.println("access_history: " + access_history);
-				int subscription_fee  = rs.getInt("subscription_fee");
-				System.out.println("subscription_fee: " + String.valueOf(subscription_fee));
-				if(subscription_fee == 0) {
-					System.out.println("Hello " + rname +"!");
-					System.out.println("You did not subscribed yet");
-					System.out.println("How long you want to subscribe? (If 1 month, type 1)");
-					int how_long = sc.nextInt();
-					amount_due = how_long * 30;
-				}
-				*/
-
-				if(should_update_history) {
-					String query2 = "update user set access_history=?";
-					pstmt = conn.prepareStatement(query2);
-					pstmt.setString(1, access_history);
-					pstmt.executeUpdate();
-					System.out.println("Hello " + rname + "!");
-					login = true;
-				}
-				else {
-					System.out.println("already logined today, so history not need to be updated");
-					login = true;
-				}
-				System.out.println("Welcome " + name + "!");
-
-				/*
-				   String raddress = rs.getString("address");
-				String raccount_number = rs.getString("account_number");
-				String rphone_number = rs.getString("phone_number");
-				String rbirthday = rs.getString("birthday");
-				System.out.println(rname + "\t" + raddress + "\t" + raccount_number +"\t" + rphone_number + "\t" + rbirthday);
-				*/
+				id = rs.getString("id");
+				password = rs.getString("password");
+				name = rs.getString("name");
+				account_number = rs.getString("account_number");
+				phone_number = rs.getString("phone_number");
+				birthday = rs.getString("birthday");
+				login = true;
+				System.out.println("Hello, " + name + "!");
+			}
+			else {
+				System.out.println("No such user");
+				login = false;
 			}
 
 		} catch(SQLException sqle) {
@@ -320,29 +284,110 @@ class User extends DBMS {
 		
 
 	}
+
+	void download() {
+		System.out.println("download");
+		Scanner sc = new Scanner(System.in);
+
+		System.out.print("Type the file ID you want to download: ");
+		String file_id = sc.nextLine();
+
+		try {
+			String query = "select * from item where id = ?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, file_id);
+			rs = pstmt.executeQuery();
+
+			if(rs.next()) {
+				String rid = rs.getString("id");
+				String rname = rs.getString("name");
+				String rtype  = rs.getString("type");
+				String rauthor = rs.getString("author");
+				String rcategory = rs.getString("category");
+				String rarchitecture = rs.getString("architecture");
+				String ros = rs.getString("os");
+				int rsize= rs.getInt("size");
+				String rdescription = rs.getString("description");
+				int rdownloaded = rs.getInt("downloaded");
+
+				// update number of downloades in item table
+				rdownloaded++;
+				String update_query = "update item set downloaded=? where id=?";
+				pstmt = conn.prepareStatement(update_query);
+				pstmt.setInt(1, rdownloaded);
+				pstmt.setString(2, rid);
+
+				// update earn of provider
+				String query2 = "select earn from provider where id= ?";
+				pstmt = conn.prepareStatement(query2);
+				pstmt.setString(1, rauthor);
+				rs = pstmt.executeQuery();
+
+				if(rs.next()) {
+					int cur_earn = rs.getInt("earn");
+					int unit_earn = 25 / rsize;
+					String update_query2 = "update provider set earn=? where id=?";
+					pstmt = conn.prepareStatement(update_query2);
+					pstmt.setInt(1, cur_earn + unit_earn);
+					pstmt.setString(2, rauthor);
+					rs = pstmt.executeQuery();
+				}
+
+				else {
+					System.out.println("download error");
+					System.exit(1);
+
+				}
+				
+
+
+
+
+			} else {
+				System.out.println("No such item");
+			}
+
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+		
+		
+	}
 }
 
 class Provider extends DBMS {
+	String id, password, name, address, phone_number, birthday, account_number;
+	int joining_fee;
+	int amount_due_admin;
+	int earn; // amount to be paird to provider
 	Provider() {
 		login = false;
 		System.out.println("Provider constructor");
 	}
 
 	void register() {
-		System.out.println("Provider register");
 		Scanner sc = new Scanner(System.in);
-		System.out.print("name: ");
-		String name = sc.next();
-		System.out.print("address: ");
-		String address = sc.next();
-		System.out.print("account number: ");
-		String account_number = sc.next();
-		System.out.print("phone_number: ");
-		String phone_number = sc.next();
-		System.out.print("birthday: ");
-		String birthday = sc.next();
-
-
+		System.out.print("ID: ");
+		id = sc.nextLine();
+		System.out.print("PASSWORD: ");
+		password = sc.nextLine();
+		System.out.print("Name: ");
+		name = sc.nextLine();
+		System.out.print("Address: ");
+		address = sc.nextLine();
+		System.out.print("Account number: ");
+		account_number = sc.nextLine();
+		System.out.print("Phone_number: ");
+		phone_number = sc.nextLine();
+		System.out.print("Birthday: ");
+		birthday = sc.nextLine();
+		joining_fee = JOINING_FEE;
+		amount_due_admin = 0;
+		earn = 0;
 
 		Date today = new Date();
 		SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -352,17 +397,18 @@ class Provider extends DBMS {
 		try {
 			//PreparedStatement pstmt = conn.prepareStatement("insert into user values(?, ?, ?, ?,?,?,?,?,?)");
 			pstmt = conn.prepareStatement(
-					"insert into provider (name, address, account_number, phone_number, birthday, date_joined) values(?, ?, ?, ?,?, ?)");
-			pstmt.setString(1, name);
-			pstmt.setString(2, address);
-			pstmt.setString(3, account_number);
-			pstmt.setString(4, phone_number);
-			pstmt.setString(5, birthday);
-			//pstmt.setString(6, NULL); // joining fee 
-			//pstmt.setString(7, NULL); // amount due you 
-			//pstmt.setString(8, NULL); // amount still to be paid to you 
-			//pstmt.setString(8, NULL); // amount to be paid to provider
-			pstmt.setString(6, date.format(today)); // date joined
+					"insert into provider (id, password, name, address, account_number, phone_number, birthday, joining_fee, amount_due_admin, earn, date_joined) values(?,?,?,?,?,?,?,?,?,?,?)");
+			pstmt.setString(1, id);
+			pstmt.setString(2, password);
+			pstmt.setString(3, name);
+			pstmt.setString(4, address);
+			pstmt.setString(5, account_number);
+			pstmt.setString(6, phone_number);
+			pstmt.setString(7, birthday);
+			pstmt.setInt(8, joining_fee);
+			pstmt.setInt(9, amount_due_admin);
+			pstmt.setInt(10, earn); 
+			pstmt.setString(11, date.format(today)); // date joined
 			pstmt.executeUpdate();
 			System.out.println("Query updated");
 		} catch(SQLException sqle) {
@@ -375,33 +421,36 @@ class Provider extends DBMS {
 	}
 
 	void login() {
-		System.out.println("User login");
 		Scanner sc = new Scanner(System.in);
-		System.out.print("account number: " );
-		String account_number = sc.next();
+		System.out.print("ID: " );
+		String input_id = sc.nextLine();
+		System.out.print("PASSWORD: ");
+		String input_password = sc.nextLine();
 
 		try {
-			String query = "select * from provider where account_number = ?";
+			String query = "select * from provider where id=? and password = ?";
 			pstmt = conn.prepareStatement(query);
-			pstmt.setString(1, account_number);
+			pstmt.setString(1, input_id);
+			pstmt.setString(2, input_password);
 			rs = pstmt.executeQuery();
 
 			if(rs.next()) {
-				String rname = rs.getString("name");
-				name = rname;
-				/*
-				   String raddress = rs.getString("address");
-				String raccount_number = rs.getString("account_number");
-				String rphone_number = rs.getString("phone_number");
-				String rbirthday = rs.getString("birthday");
-				System.out.println(rname + "\t" + raddress + "\t" + raccount_number +"\t" + rphone_number + "\t" + rbirthday);
-				*/
+				id = rs.getString("id");
+				password = rs.getString("password");
+				name = rs.getString("name");
+				address = rs.getString("address");
+				account_number = rs.getString("account_number");
+				phone_number = rs.getString("phone_number");
+				birthday = rs.getString("birthday");
+				joining_fee = rs.getInt("joining_fee");
+				amount_due_admin = rs.getInt("amount_due_admin");
+				earn = rs.getInt("earn");
 				login = true;
-				System.out.println("Welcome " + name + "!");
+				System.out.println("Hello, " + name + "!");
 			}
 			else {
-				System.out.println("No such account number, sorry");
-				return;
+				System.out.println("No such provider");
+				login = false;
 			}
 
 		} catch(SQLException sqle) {
@@ -430,41 +479,51 @@ class Provider extends DBMS {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("upload");
 		System.out.print("Type file name you want to upload, e.g. /home/2016312029/[path]: ");
-		String file_path = sc.next();
+		String file_path = sc.nextLine();
 		int file_size = getFileSize(file_path);
 		if(file_size > 0) {
 			System.out.println("Calculated file size: " + String.valueOf(file_size) + " bytes");
-			String file_id, file_name, file_type, author, file_category, os, description;
-			System.out.print("File id: ");
-			file_id = sc.next();
-			System.out.print("File name: ");
-			file_name = sc.next();
-			System.out.print("File type: ");
-			file_type = sc.next();
-			System.out.print("File category: ");
-			file_category = sc.next();
-			System.out.print("Required os: ");
-			os = sc.next();
-			System.out.print("Short description: ");
-			description = sc.next();
+			String file_id, file_name, file_type, author, file_category, architecture, os, description;
+			Date now = new Date();
+			//SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+			
 
+			System.out.print("File name: ");
+			file_name = sc.nextLine();
+			file_id = now.toString() + "_" + id + "_" + file_name; 
+			System.out.print("File type(program, video, etc..): ");
+			file_type = sc.nextLine();
+			System.out.print("File category: ");
+			file_category = sc.nextLine();
+			System.out.print("Machine architecture required(mac, pc, workstation type, all, etc..): ");
+			architecture = sc.nextLine();
+			System.out.print("Os required (mac, windows, all, etc...): ");
+			os = sc.nextLine();
+			System.out.print("Short description: ");
+			description = sc.nextLine();
+
+			/*
 			boolean write_result = write_to_hub(file_path);
 			if(!write_result) {
 				System.out.println("Failed to upload file to hub, please try again");
 				return;
 			}
-			System.out.println("Successfully uploaded to hub");
+			*/
+			//System.out.println("Successfully uploaded to hub");
 			try {
 				pstmt = conn.prepareStatement(
-						"insert into item (id, name, type, author, category, size, os, description) values(?,?,?,?,?,?,?,?)");
+						"insert into item (id, name, type, author, category, architecture, os, description, updated,size, downloaded) values(?,?,?,?,?,?,?,?,?,?,?)");
 				pstmt.setString(1, file_id);
 				pstmt.setString(2, file_name);
 				pstmt.setString(3, file_type);
-				pstmt.setString(4, name);
+				pstmt.setString(4, id);
 				pstmt.setString(5, file_category);
-				pstmt.setInt(6, file_size);
+				pstmt.setString(6, architecture);
 				pstmt.setString(7, os);
 				pstmt.setString(8, description);
+				pstmt.setString(9, now.toString());
+				pstmt.setInt(10, file_size);
+				pstmt.setInt(11, 0);
 				pstmt.executeUpdate();
 				System.out.println("Query updated");
 			} catch(SQLException sqle) {

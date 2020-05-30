@@ -6,9 +6,11 @@ public class MyProject {
 		boolean done = false;
 		Scanner sc = new Scanner(System.in);
 		int input;
-		System.out.println("Welcome to market place for file sharing!");
+		System.out.println("\nWelcome to market place for file sharing!");
 		System.out.println("Subscription fee for user is $10 per month!");
+		System.out.println("Joining fee for provider is $20!");
 		System.out.println("Upload fee for provider is $1 per byte!");
+		System.out.println("If you are provider, you will earn $25 / size per download");
 		System.out.print("As user(1) / provider(2): ");
 		int type = sc.nextInt();
 
@@ -42,6 +44,7 @@ public class MyProject {
 					user.printByCategory();
 				}
 				else if(choice == 3) {
+					user.download();
 
 				}
 				else {
@@ -49,6 +52,7 @@ public class MyProject {
 					user.login = false;
 				}
 			}
+
 			else {
 				System.out.println("1) register");
 				System.out.println("2) login");

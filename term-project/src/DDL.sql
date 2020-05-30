@@ -1,40 +1,48 @@
 create table user
-	(name 			varchar(20),
+	(
+	 id				varchar(20),
+	 password		varchar(20), 
+	 name 			varchar(20),
 	 address  		varchar(20),
 	 account_number varchar(20),
 	 phone_number 	varchar(20),
 	 birthday    	varchar(20),
 	 access_history varchar(20),
 	 subscription_fee int(100),
-	 amount_due 	varchar(20),
+	 amount_due 	int(100),
 	 date_joined 	varchar(20),
-	 primary key(account_number)
+	 primary key(id)
 	);
 
 create table provider
-	(name 			varchar(20),
+	(id 			varchar(20),
+	 password		varchar(20),
+	 name 			varchar(20),
 	 address  		varchar(20),
 	 account_number varchar(20),
 	 phone_number 	varchar(20),
 	 birthday    	varchar(20),
 	 joining_fee	int(100),
-	 amount_due		int(100),
-	 amount_to_be_paid_you int(100),
-	 amount_to_be_paid_provider int(100),
+	 amount_due_admin		int(100),
+	 earn 			int(100),
 	 date_joined 	varchar(20),
-	 primary key(account_number)
+	 primary key(id)
 	);
 
 create table item
 	(
-	 id				varchar(20),
+	 id				varchar(70),
 	 name			varchar(100),
-	 type			varchar(50),
+	 type			varchar(20),
 	 author			varchar(20),
 	 category		varchar(20),
-	 size			int(100),
+	 architecture	varchar(20),
 	 os				varchar(10),
-	 description	varchar(100)
+	 size			int(100),
+	 description	varchar(100),
+	 updated		varchar(50),
+	 downloaded		int(100),
+	 primary key(id)
 
 	);
 
