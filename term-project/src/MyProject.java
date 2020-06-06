@@ -84,7 +84,7 @@ public class MyProject {
 				System.out.println("1) View all files");
 				System.out.println("2) View by category"); 
 				System.out.println("3) Upload");
-				System.out.println("4) Update file");
+				System.out.println("4) Update");
 				System.out.println("5) See statistics");
 				System.out.println("6) Delete account");
 				System.out.println("7) logout");

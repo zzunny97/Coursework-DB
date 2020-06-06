@@ -7,8 +7,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-		
-		
+
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
@@ -41,7 +41,7 @@ public class DBMS {
 		name = null;
 		SUBSCRIPTION_FEE = 10;
 		JOINING_FEE = 20;
-		
+
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db2016312029", "2016312029", "changethis");
@@ -98,7 +98,6 @@ public class DBMS {
 		System.out.print("Type category (If you want view all existing categories in current market, type 0): " );
 		String category = sc.nextLine();
 
-
 		try {
 			if(category.equals("0")) {
 				String q = "select distinct category from item";
@@ -142,6 +141,40 @@ public class DBMS {
 
 	}
 
+	void printByAuthor(String author) {
+		Scanner sc = new Scanner(System.in);
+		try {
+			String query = "select * from item where author=?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, author);
+			rs = pstmt.executeQuery();
+
+			System.out.println("name\ttype\tauthor\tcategory\tarchitecure\tos\tsize\tdescription\tlast_updated");
+			while(rs.next()) {
+				String rname  = rs.getString("name");
+				String rtype = rs.getString("type");
+				String rauthor = rs.getString("author");
+				String rcategory =  rs.getString("category");
+				String rarchitecture =  rs.getString("architecture");
+				String ros =  rs.getString("os");
+				int rsize = rs.getInt("size");
+				String rdescription = rs.getString("description");
+				String rlast_updated = rs.getString("last_updated");
+				System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+rarchitecture+"\t"+ros+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
+
+			}
+
+
+		} catch(SQLException sqle) {
+			System.out.println("SQLException:/" + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+
+	}
+
 }
 
 
@@ -154,7 +187,7 @@ class User extends DBMS {
 
 	void register() {
 		Scanner sc = new Scanner(System.in);
-		
+
 		System.out.print("ID: ");
 		id = sc.nextLine();
 		System.out.print("PASSWD: ");
@@ -232,7 +265,7 @@ class User extends DBMS {
 			System.out.println("Exception: " + e);
 			System.exit(1);
 		}
-		
+
 
 	}
 
@@ -282,7 +315,7 @@ class User extends DBMS {
 		} catch(FileNotFoundException e) {
 			ret = false;
 			e.printStackTrace();
-			
+
 		} catch(IOException e) {
 			ret = false;
 			e.printStackTrace();
@@ -332,15 +365,15 @@ class User extends DBMS {
 
 			if(rs.next()) {
 				/*
-				String rname = rs.getString("name");
-				String rtype  = rs.getString("type");
-				String rauthor = rs.getString("author");
-				String rcategory = rs.getString("category");
-				String rarchitecture = rs.getString("architecture");
-				String ros = rs.getString("os");
-				int rsize= rs.getInt("size");
-				String rdescription = rs.getString("description");
-				*/
+				   String rname = rs.getString("name");
+				   String rtype  = rs.getString("type");
+				   String rauthor = rs.getString("author");
+				   String rcategory = rs.getString("category");
+				   String rarchitecture = rs.getString("architecture");
+				   String ros = rs.getString("os");
+				   int rsize= rs.getInt("size");
+				   String rdescription = rs.getString("description");
+				 */
 
 				query = "insert into history (user_id, provider_id, item_name) values(?,?,?)";
 				pstmt = conn.prepareStatement(query);
@@ -362,8 +395,8 @@ class User extends DBMS {
 			System.exit(1);
 		}
 
-		
-		
+
+
 	}
 }
 
@@ -453,7 +486,7 @@ class Provider extends DBMS {
 			System.out.println("Exception: " + e);
 			System.exit(1);
 		}
-		
+
 	}
 
 	int getFileSize(String path) {
@@ -489,7 +522,7 @@ class Provider extends DBMS {
 		} catch(FileNotFoundException e) {
 			ret = false;
 			e.printStackTrace();
-			
+
 		} catch(IOException e) {
 			ret = false;
 			e.printStackTrace();
@@ -512,7 +545,7 @@ class Provider extends DBMS {
 		}
 		return ret;
 	}
-	
+
 	void upload() {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Type file name you want to upload, e.g. /home/2016312029/[path]: ");
@@ -521,7 +554,7 @@ class Provider extends DBMS {
 		if(file_size > 0) {
 			System.out.println("Calculated file size: " + String.valueOf(file_size) + " bytes");
 			String file_name, file_type, file_category, architecture, os, description;
-			
+
 			System.out.print("File name: ");
 			file_name = sc.nextLine();
 			System.out.print("File type(program, video, etc..): ");
@@ -571,9 +604,156 @@ class Provider extends DBMS {
 
 	}
 
+	public void renameFile(String filename, String newFilename) {
+		File file = new File( "./hub/"+filename );
+		File fileNew = new File( "./hub/"+newFilename );
+		if( file.exists() ) file.renameTo(fileNew);
+	}
+
 	void update() {
+		printByAuthor(id);
+		
 
+		try {
+			Scanner sc = new Scanner(System.in);
+			System.out.print("Type the file name you want to update: ");
+			String file_name = sc.nextLine();
+			String query = "select * from item where name = ?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, file_name);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				String rname = rs.getString("name");
+				String rtype = rs.getString("type");
+				String rcategory = rs.getString("category");
+				String rauthor = rs.getString("author");
+				String rarchitecture = rs.getString("architecture");
+				String ros = rs.getString("os");
+				String rdescription = rs.getString("description");
 
+				System.out.println("Current contents of your item");
+				System.out.println("File name: " + rname + "\nType: " + rtype + "\nCategory: "+rcategory+"\nArtchitecture: " + rarchitecture
+						+ "\nOS: " + ros + "\nDescription: " + rdescription);
+
+				System.out.println("1) Name");
+				System.out.println("2) Type");
+				System.out.println("3) Category");
+				System.out.println("4) Architecture");
+				System.out.println("5) OS");
+				System.out.println("6) Description");
+				System.out.println("7) Reupload file");
+				System.out.print("Which you want to update?: ");
+
+				String answer_str = sc.nextLine();
+				int answer = Integer.parseInt(answer_str);
+				String query2; 
+
+				if(answer == 1) { // name
+					System.out.print("Type update name: ");
+					String str = sc.nextLine();
+					query2 = "update item set name = ? where name = ? and author = ?";
+					pstmt = conn.prepareStatement(query2);
+					pstmt.setString(1, str); 
+					pstmt.setString(2, rname);
+					pstmt.setString(3, rauthor);
+					pstmt.executeUpdate();
+					renameFile(rauthor+"_"+rname, rauthor+"_"+str);
+				}
+				else if(answer == 2) { // type
+					System.out.print("Type update name: ");
+					String str = sc.nextLine();
+					query2 = "update item set type = ? where name = ? and author = ?";
+					pstmt = conn.prepareStatement(query2);
+					pstmt.setString(1, str); 
+					pstmt.setString(2, rname);
+					pstmt.setString(3, rauthor);
+					pstmt.executeUpdate();
+				}
+				else if(answer == 3) { // category
+					System.out.print("Type update category: ");
+					String str = sc.nextLine();
+					query2 = "update item set category = ? where name = ? and author = ?";
+					pstmt = conn.prepareStatement(query2);
+					pstmt.setString(1, str); 
+					pstmt.setString(2, rname);
+					pstmt.setString(3, rauthor);
+					pstmt.executeUpdate();
+
+				}
+				else if(answer == 4) { // architecture
+					System.out.print("Type update architecture: ");
+					String str = sc.nextLine();
+					query2 = "update item set architecture = ? where name = ? and author = ?";
+					pstmt = conn.prepareStatement(query2);
+					pstmt.setString(1, str); 
+					pstmt.setString(2, rname);
+					pstmt.setString(3, rauthor);
+					pstmt.executeUpdate();
+
+				}
+				else if(answer == 5) { // os
+					System.out.print("Type update os: ");
+					String str = sc.nextLine();
+					query2 = "update item set os = ? where name = ? and author = ?";
+					pstmt = conn.prepareStatement(query2);
+					pstmt.setString(1, str); 
+					pstmt.setString(2, rname);
+					pstmt.setString(3, rauthor);
+					pstmt.executeUpdate();
+				}
+				else if(answer == 6) { // description
+					System.out.print("Type update description: ");
+					String str = sc.nextLine();
+					query2 = "update item set description = ? where name = ? and author = ?";
+					pstmt = conn.prepareStatement(query2);
+					pstmt.setString(1, str); 
+					pstmt.setString(2, rname);
+					pstmt.setString(3, rauthor);
+					pstmt.executeUpdate();
+				}
+				else if(answer == 7) {
+					System.out.println("You chooosed reuploading file." );
+					System.out.print("Type file name you want to reupload, e.g. /home/2016312029/[path]: ");
+					String file_path = sc.nextLine();
+					int file_size = getFileSize(file_path);
+					if(file_size > 0) {
+						System.out.println("Calculated file size: " + String.valueOf(file_size) + " bytes");
+						boolean write_result = write_to_hub(file_path, file_name);
+						if(!write_result) {
+							System.out.println("Failed to upload file to hub, please try again");
+							return;
+						}
+
+						System.out.println("Successfully reuploaded to hub");
+						pstmt = conn.prepareStatement(
+								"update item set size = ? where name = ? and author = ?");
+						pstmt.setInt(1, file_size);
+						pstmt.setString(2, rname);
+						pstmt.setString(3, rauthor);
+						pstmt.executeUpdate();
+						System.out.println("Reupload complete");
+					}
+					else {
+						System.out.println("Oops! File not exists, Pleas check again");
+						return;
+					}
+
+				}
+				else{
+					System.out.println("Wrong answer, return");
+				}
+			}
+			else {
+				System.out.println("No such item");
+			}
+		}
+		catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
 	}
 
 	void printStat() {
@@ -582,8 +762,9 @@ class Provider extends DBMS {
 			String query = "select * from history where provider_id=?";
 			pstmt = conn.prepareStatement(query);
 			pstmt.setString(1,id);
-			rs = pstmt.executeQuery(query);
+			rs = pstmt.executeQuery();
 
+			System.out.println("User\tAuthor\tFile Name");
 			while(rs.next()) {
 				ruser_id = rs.getString("user_id");
 				rprovider_id = rs.getString("provider_id");

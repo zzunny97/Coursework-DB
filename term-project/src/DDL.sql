@@ -72,7 +72,7 @@ create table history
 	 time					timestamp default current_timestamp,
 	 foreign key(user_id) references user(id) on delete cascade,
 	 foreign key(provider_id) references provider(id) on delete cascade,
-	 foreign key(item_name) references item(name) on delete cascade
+	 foreign key(item_name) references item(name) on delete cascade on update cascade
 	);
 
 
