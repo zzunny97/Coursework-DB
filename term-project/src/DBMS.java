@@ -29,8 +29,8 @@ public class DBMS {
 	int SUBSCRIPTION_FEE, JOINING_FEE;
 
 	Connection conn;
-	PreparedStatement pstmt;
-	ResultSet rs;
+	PreparedStatement pstmt, pstmt2;
+	ResultSet rs, rs2;
 
 	public DBMS() {
 		System.out.println("[DBMS constructor]");
@@ -46,6 +46,25 @@ public class DBMS {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db2016312029", "2016312029", "changethis");
 			System.out.println("[Database Connection success]");
+
+			String query = "select provider_id, item_name, max(time) as m from history group by provider_id and item_name having datediff(m, current_date) > 7";
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String rid = rs.getString("provider_id");
+				String ritem_name = rs.getString("item_name");
+				System.out.println("Purging provider: " + rid + " item_name: " + ritem_name);
+				String query2 = "delete from item where id = ? and item_name = ?";
+				pstmt2 = conn.prepareStatement(query2);
+				pstmt2.executeUpdate();
+
+				String query3 = "insert into purged(provider_id, item_name) values(?,?)";
+				pstmt2 = conn.prepareStatement(query3);
+				pstmt2.setString(1, rid);
+				pstmt2.setString(2, ritem_name);
+				pstmt2.executeUpdate();
+			}
+			System.out.println("[JDBC Connector Driver successed]");
 		} catch (SQLException e) { 
 			System.out.println("[SQL Error : " + e.getMessage() +"]"); 
 			System.exit(1);
@@ -59,10 +78,10 @@ public class DBMS {
 		System.out.println("call DBMS destructor");
 		try {
 			conn.close();
-		} catch (Exception e) { }
+		} catch (Exception e) { 
+		
+		}
 	}
-
-
 
 	void printAllItem() {
 		try {
@@ -129,8 +148,6 @@ public class DBMS {
 
 				}
 			}
-
-
 		} catch(SQLException sqle) {
 			System.out.println("SQLException:/" + sqle);
 			System.exit(1);
@@ -218,7 +235,10 @@ class User extends DBMS {
 			pstmt.setString(6, phone_number);
 			pstmt.setString(7, birthday);
 			pstmt.executeUpdate();
+
 			System.out.println("You successfully registered! Thanks");
+
+
 		} catch(SQLException sqle) {
 			System.out.println("SQLException: " + sqle);
 			System.exit(1);
@@ -265,8 +285,6 @@ class User extends DBMS {
 			System.out.println("Exception: " + e);
 			System.exit(1);
 		}
-
-
 	}
 
 	boolean check(String provider_id, String file_name) {
@@ -364,22 +382,13 @@ class User extends DBMS {
 			rs = pstmt.executeQuery();
 
 			if(rs.next()) {
-				/*
-				   String rname = rs.getString("name");
-				   String rtype  = rs.getString("type");
-				   String rauthor = rs.getString("author");
-				   String rcategory = rs.getString("category");
-				   String rarchitecture = rs.getString("architecture");
-				   String ros = rs.getString("os");
-				   int rsize= rs.getInt("size");
-				   String rdescription = rs.getString("description");
-				 */
-
-				query = "insert into history (user_id, provider_id, item_name) values(?,?,?)";
+				int size = rs.getInt("size");
+				query = "insert into history (user_id, provider_id, item_name, price) values(?,?,?,?)";
 				pstmt = conn.prepareStatement(query);
 				pstmt.setString(1, id);
 				pstmt.setString(2, file_author);
 				pstmt.setString(3, file_name);
+				pstmt.setFloat(4, (float)0.0025 * size);
 				pstmt.executeUpdate();
 				get_from_hub("./hub/"+ file_author+"_"+file_name, file_name);
 
@@ -394,10 +403,107 @@ class User extends DBMS {
 			System.out.println("Exception: " + e);
 			System.exit(1);
 		}
-
-
-
 	}
+
+	void cancel_subscription() {
+		System.out.println("If you cancel subscription, your information, items downloaded will all deleted after this month");
+		System.out.print("[Y/N]: ");
+		Scanner sc = new Scanner(System.in);
+		String answer = sc.nextLine();
+		if(answer.equals("Y")) {
+			try {
+				String query = "select end_date from user_bill where id = ?";
+				pstmt = conn.prepareStatement(query);
+				pstmt.setString(1, id);
+				rs = pstmt.executeQuery();
+				if(rs.next()) {
+					String end_date = rs.getString("end_date");
+					System.out.println("You've been unsubscribed you can use the service until " + end_date + ", hope to see you again!");
+				}
+			} catch(SQLException sqle) {
+				System.out.println("SQLException: " + sqle);
+				System.exit(1);
+			} catch(Exception e) {
+				System.out.println("Exception: " + e);
+				System.exit(1);
+			}
+		}
+		else if(answer.equals("N")){
+			System.out.println("Ok good choice");
+		}
+		else {
+			System.out.println("Wrong answer return");
+
+		}
+	}
+
+	void show_bill() {
+		try {
+			String query = "select date_joined, start_date, end_date from user where id = ?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				String date_joined = rs.getString("date_joined");
+				String start_date  = rs.getString("start_date");
+				String end_date    = rs.getString("end_date");
+				System.out.println("Registered date: " + date_joined);
+				System.out.println("Last subscription date: " + start_date);
+				System.out.println("End subscription date: " + end_date + " (If you do not cancel subscription, it will be subscribed automatically");
+				String query2 = "select provider_id, item_name, time,price from history where user_id = ?";
+				pstmt = conn.prepareStatement(query2);
+				pstmt.setString(1, id);
+				rs = pstmt.executeQuery();
+				System.out.println("Price is determined by $0.0025 * size");
+				float total_price = 0;
+				while(rs.next()) {
+					String provider_id = rs.getString("provider_id");
+					String item_name = rs.getString("item_name");
+					String time = rs.getString("time");
+					float price = rs.getFloat("price");
+					total_price += price;
+					System.out.println(item_name + " by "+ provider_id + " at " + time + ": $" + String.valueOf(price));
+				}
+				System.out.println("Total price: " + String.valueOf(total_price));
+			}
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+	}
+
+	void delete_account() {
+		System.out.println("If you delete your account, your information, items downloaded will all deleted");
+		System.out.print("[Y/N]: ");
+		Scanner sc = new Scanner(System.in);
+		String answer = sc.nextLine();
+		if(answer.equals("Y")) {
+			try {
+				String delete_provider = "delete from user where id = ?";
+				pstmt = conn.prepareStatement(delete_provider);
+				pstmt.setString(1, id);
+				pstmt.executeUpdate();
+				login = false;
+			} catch(SQLException sqle) {
+				System.out.println("SQLException: " + sqle);
+				System.exit(1);
+			} catch(Exception e) {
+				System.out.println("Exception: " + e);
+				System.exit(1);
+			}
+		}
+		else if(answer.equals("N")){
+			System.out.println("Ok good choice");
+		}
+		else {
+			System.out.println("Wrong answer return");
+
+		}
+	}
+
 }
 
 
@@ -759,25 +865,73 @@ class Provider extends DBMS {
 	void printStat() {
 		try {
 			String ruser_id, rprovider_id, ritem_name;
+			float rprice;
+			float total_earn = 0;
 			String query = "select * from history where provider_id=?";
 			pstmt = conn.prepareStatement(query);
 			pstmt.setString(1,id);
 			rs = pstmt.executeQuery();
 
-			System.out.println("User\tAuthor\tFile Name");
+			System.out.println("User\tAuthor\tFile Name\tIncome");
 			while(rs.next()) {
 				ruser_id = rs.getString("user_id");
 				rprovider_id = rs.getString("provider_id");
 				ritem_name = rs.getString("item_name");
-				System.out.println(ruser_id + "\t" + rprovider_id + "\t" + ritem_name);
+				rprice = rs.getFloat("price");
+				total_earn += rprice;
+				System.out.println(ruser_id + "\t" + rprovider_id + "\t" + ritem_name+"\t$"+String.valueOf(rprice));
 			}
+			System.out.println("Total you earned: " + String.valueOf(total_earn));
 
+			query = "select * from purged where provider_id=?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1,id);
+			rs = pstmt.executeQuery();
+			System.out.println("If your uploaded file is not accessed by anyone more than 7 days, the item is purged from market.");
+			System.out.println("Purged item list");
+			while(rs.next()) {
+				ritem_name = rs.getString("item_name");
+				String time = rs.getString("purged_time");
+				System.out.println(ritem_name + "\t" + time);
+			}
 		} catch(SQLException sqle) {
 			System.out.println("SQLException: " + sqle);
 			System.exit(1);
 		} catch(Exception e) {
 			System.out.println("Exception: " + e);
 			System.exit(1);
+		}
+	}
+
+	void cancel_subscription() {
+		System.out.println("If you cancel subscription, your information, items uploaded will all deleted after this month");
+		System.out.print("[Y/N]: ");
+		Scanner sc = new Scanner(System.in);
+		String answer = sc.nextLine();
+		if(answer.equals("Y")) {
+			try {
+				String query = "select end_date from provider_bill where id = ?";
+				pstmt = conn.prepareStatement(query);
+				pstmt.setString(1, id);
+				rs = pstmt.executeQuery();
+				if(rs.next()) {
+					String end_date = rs.getString("end_date");
+					System.out.println("You've been unsubscribed you can use the service until " + end_date + ", hope to see you again!");
+				}
+			} catch(SQLException sqle) {
+				System.out.println("SQLException: " + sqle);
+				System.exit(1);
+			} catch(Exception e) {
+				System.out.println("Exception: " + e);
+				System.exit(1);
+			}
+		}
+		else if(answer.equals("N")){
+			System.out.println("Ok good choice");
+		}
+		else {
+			System.out.println("Wrong answer return");
+
 		}
 	}
 
@@ -790,11 +944,6 @@ class Provider extends DBMS {
 			try {
 				String delete_provider = "delete from provider where id = ?";
 				pstmt = conn.prepareStatement(delete_provider);
-				pstmt.setString(1, id);
-				pstmt.executeUpdate();
-
-				String delete_item = "delete from item where author = ?";
-				pstmt = conn.prepareStatement(delete_item);
 				pstmt.setString(1, id);
 				pstmt.executeUpdate();
 				login = false;

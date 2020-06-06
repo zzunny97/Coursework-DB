@@ -6,3 +6,6 @@ drop table item;
 drop table user_bill;
 drop table provider_bill;
 drop table history;
+
+DROP TRIGGER user_trigger;
+DROP TRIGGER provider_trigger;

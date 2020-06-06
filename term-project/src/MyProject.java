@@ -7,10 +7,10 @@ public class MyProject {
 		Scanner sc = new Scanner(System.in);
 		int input;
 		System.out.println("\nWelcome to market place for file sharing!");
-		System.out.println("Subscription fee for user is $10 per month!");
+		System.out.println("Subscription fee for user is $10 per month!\n");
 		System.out.println("Joining fee for provider is $20!");
 		System.out.println("Upload fee for provider is $1 per byte!");
-		System.out.println("If you are provider, you will earn $25 / size per download");
+		System.out.println("If you are provider, you will earn $0.0025 * size per download\n");
 		System.out.print("As user(1) / provider(2): ");
 		int type = sc.nextInt();
 
@@ -32,10 +32,13 @@ public class MyProject {
 		int choice;
 		while(true) {
 			if(user.login) {
+				System.out.println();
 				System.out.println("1) View all files");
 				System.out.println("2) View by category");
 				System.out.println("3) Download");
-				System.out.println("4) logout");
+				System.out.println("4) Show bills");
+				System.out.println("5) Cancel subscription");
+				System.out.println("6) Delete account");
 				choice = sc.nextInt();
 				if(choice == 1) {
 					user.printAllItem();
@@ -45,7 +48,15 @@ public class MyProject {
 				}
 				else if(choice == 3) {
 					user.download();
-
+				}
+				else if(choice == 4) {
+					user.show_bill();
+				}
+				else if(choice == 5) {
+					user.cancel_subscription();
+				}
+				else if(choice == 6) {
+					user.delete_account();
 				}
 				else {
 					System.out.println("logout");
@@ -54,6 +65,7 @@ public class MyProject {
 			}
 
 			else {
+				System.out.println();
 				System.out.println("1) register");
 				System.out.println("2) login");
 				System.out.println("3) quit");
@@ -81,6 +93,7 @@ public class MyProject {
 		int choice;
 		while(true) {
 			if(provider.login) {
+				System.out.println();
 				System.out.println("1) View all files");
 				System.out.println("2) View by category"); 
 				System.out.println("3) Upload");
@@ -113,6 +126,7 @@ public class MyProject {
 				}
 			}
 			else {
+				System.out.println();
 				System.out.println("1) register");
 				System.out.println("2) login");
 				System.out.println("3) quit");
