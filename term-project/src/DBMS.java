@@ -66,7 +66,7 @@ public class DBMS {
 
 	void printAllItem() {
 		try {
-			String query = "select * from item order by downloaded";
+			String query = "select * from item";
 			pstmt = conn.prepareStatement(query);
 			rs = pstmt.executeQuery();
 
@@ -176,7 +176,7 @@ class User extends DBMS {
 		//SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
 		try {
-			pstmt = conn.prepareStatement("insert into user (id, password, name, address, account_number, phone_number, birthday, subscription_fee, amount_due) values(?,?,?,?,?,?,?,?,?)");
+			pstmt = conn.prepareStatement("insert into user (id, password, name, address, account_number, phone_number, birthday) values(?,?,?,?,?,?,?)");
 			pstmt.setString(1, id);
 			pstmt.setString(2, password);
 			pstmt.setString(3, name);
@@ -184,8 +184,6 @@ class User extends DBMS {
 			pstmt.setString(5, account_number);
 			pstmt.setString(6, phone_number);
 			pstmt.setString(7, birthday);
-			pstmt.setInt(8, subscription_fee);
-			pstmt.setInt(9, amount_due);
 			pstmt.executeUpdate();
 			System.out.println("You successfully registered! Thanks");
 		} catch(SQLException sqle) {
@@ -240,7 +238,7 @@ class User extends DBMS {
 
 	boolean check(String provider_id, String file_name) {
 		try {
-			String query = "select * from history where user_id=? and provider_id=? and item_id=?";
+			String query = "select * from history where user_id=? and provider_id=? and item_name=?";
 			pstmt = conn.prepareStatement(query);
 			pstmt.setString(1, id);
 			pstmt.setString(2, provider_id);
@@ -344,15 +342,13 @@ class User extends DBMS {
 				String rdescription = rs.getString("description");
 				*/
 
-				query = "insert into history (user_id, provider_id, item_id) values(?,?,?)";
+				query = "insert into history (user_id, provider_id, item_name) values(?,?,?)";
 				pstmt = conn.prepareStatement(query);
 				pstmt.setString(1, id);
 				pstmt.setString(2, file_author);
 				pstmt.setString(3, file_name);
 				pstmt.executeUpdate();
-				if(success) {
-					get_from_hub("./hub/"+ file_author+"_"+file_name, file_name);
-				}
+				get_from_hub("./hub/"+ file_author+"_"+file_name, file_name);
 
 			} else {
 				System.out.println("No such item");
@@ -442,9 +438,6 @@ class Provider extends DBMS {
 				account_number = rs.getString("account_number");
 				phone_number = rs.getString("phone_number");
 				birthday = rs.getString("birthday");
-				joining_fee = rs.getInt("joining_fee");
-				amount_due_admin = rs.getInt("amount_due_admin");
-				earn = rs.getInt("earn");
 				login = true;
 				System.out.println("Hello, " + name + "!");
 			}
@@ -542,25 +535,25 @@ class Provider extends DBMS {
 			System.out.print("Short description: ");
 			description = sc.nextLine();
 
-			
+
 			boolean write_result = write_to_hub(file_path, file_name);
 			if(!write_result) {
 				System.out.println("Failed to upload file to hub, please try again");
 				return;
 			}
-			
+
 			System.out.println("Successfully uploaded to hub");
 			try {
 				pstmt = conn.prepareStatement(
-						"insert into item (name, type, author, category, architecture, os, size,description) values(?,?,?,?,?,?,?,?,?,?,?)");
+						"insert into item (name, type, author, category, architecture, os, size,description) values(?,?,?,?,?,?,?,?)");
 				pstmt.setString(1, file_name);
 				pstmt.setString(2, file_type);
 				pstmt.setString(3, id);
 				pstmt.setString(4, file_category);
 				pstmt.setString(5, architecture);
 				pstmt.setString(6, os);
-				pstmt.setInt(8, file_size);
-				pstmt.setString(9, description);
+				pstmt.setInt(7, file_size);
+				pstmt.setString(8, description);
 				pstmt.executeUpdate();
 				System.out.println("Upload complete");
 			} catch(SQLException sqle) {
@@ -585,16 +578,17 @@ class Provider extends DBMS {
 
 	void printStat() {
 		try {
+			String ruser_id, rprovider_id, ritem_name;
 			String query = "select * from history where provider_id=?";
-			String ruser_id, rprovider_id, ritem_id;
 			pstmt = conn.prepareStatement(query);
 			pstmt.setString(1,id);
 			rs = pstmt.executeQuery(query);
+
 			while(rs.next()) {
 				ruser_id = rs.getString("user_id");
 				rprovider_id = rs.getString("provider_id");
-				ritem_id = rs.getString("item_name");
-				System.out.println(ruser_id + "\t" + rprovider_id + "\t" + ritem_id);
+				ritem_name = rs.getString("item_name");
+				System.out.println(ruser_id + "\t" + rprovider_id + "\t" + ritem_name);
 			}
 
 		} catch(SQLException sqle) {
