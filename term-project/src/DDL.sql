@@ -7,10 +7,8 @@ create table user
 	 account_number varchar(20),
 	 phone_number 	varchar(20),
 	 birthday    	varchar(20),
-	 access_history varchar(1000),
-	 subscription_fee int(100),
-	 amount_due 	int(100),
-	 date_joined 	varchar(20),
+
+	 date_joined 	timestamp default current_timestamp,
 	 primary key(id)
 	);
 
@@ -22,29 +20,62 @@ create table provider
 	 account_number varchar(20),
 	 phone_number 	varchar(20),
 	 birthday    	varchar(20),
-	 joining_fee	int(100),
-	 amount_due_admin		int(100),
-	 earn 			float(100, 5),
-	 date_joined 	varchar(20),
+
+	 date_joined 	timestamp default current_timestamp,
 	 primary key(id)
 	);
 
 create table item
 	(
-	 id				varchar(70),
-	 name			varchar(100),
-	 type			varchar(20),
+	 name			varchar(20),
+	 type			varchar(10), 
 	 author			varchar(20),
 	 category		varchar(20),
 	 architecture	varchar(20),
 	 os				varchar(10),
 	 size			int(100),
 	 description	varchar(100),
-	 updated		varchar(50),
-	 downloaded		int(100),
-	 primary key(id)
+	 last_updated   timestamp default current_timestamp on update current_timestamp,
+
+	 primary key(id, author),
+	 foreign key(author) references provider (id)
 
 	);
+
+create table user_bill
+	(
+	 id				varchar(20),
+	 start_date 	varchar(10),
+	 end_date		varchar(10),
+
+	 subscription_fee int(100),
+	 amount_due 	int(100),
+	 foreign key(id) references user(id) on delete cascade
+	);
+
+create table provider_bill
+	(
+	 id				varchar(20),
+	 earn 			float(100, 5),
+	 should_pay		int(100),
+
+	 joining_fee	int(100),
+	 amount_due_admin		int(100),
+
+	 foreign key(id) references provider(id) on delete cascade
+	);
+
+create table history
+	(
+	 user_id				varchar(20),
+	 provider_id			varchar(20),
+	 item_name 				varchar(20),
+	 time					timestamp default current_timestamp,
+	 foreign key(user_id) references user(id) on delete cascade,
+	 foreign key(provider_id) references provider(id) on delete cascade,
+	 foreign key(product_id) references item(id) on delete cascade
+	);
+
 
 /*	
 create table classroom
