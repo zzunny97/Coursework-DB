@@ -35,10 +35,15 @@ public class MyProject {
 				System.out.println();
 				System.out.println("1) View all files");
 				System.out.println("2) View by category");
-				System.out.println("3) Download");
-				System.out.println("4) Show bills");
-				System.out.println("5) Cancel subscription");
-				System.out.println("6) Delete account");
+				System.out.println("3) View files by rank"); 
+				System.out.println("4) View all purchasing history");
+				System.out.println("5) View purged files");
+				System.out.println("6) Search by key");
+				System.out.println("7) Download");
+				System.out.println("8) Show bills");
+				System.out.println("9) Cancel subscription");
+				System.out.println("10) Delete account");
+				System.out.println("11) Logout");
 				choice = sc.nextInt();
 				if(choice == 1) {
 					user.printAllItem();
@@ -47,15 +52,27 @@ public class MyProject {
 					user.printByCategory();
 				}
 				else if(choice == 3) {
-					user.download();
+					user.printByRank();
 				}
 				else if(choice == 4) {
-					user.show_bill();
+					user.printHistory();
 				}
 				else if(choice == 5) {
-					user.cancel_subscription();
+					user.printPurged();
 				}
 				else if(choice == 6) {
+					user.printAllItemByKey();
+				}
+				else if(choice == 7) {
+					user.download();
+				}
+				else if(choice == 8) {
+					user.show_bill();
+				}
+				else if(choice == 9) {
+					user.cancel_subscription();
+				}
+				else if(choice == 10) {
 					user.delete_account();
 				}
 				else {
@@ -93,14 +110,37 @@ public class MyProject {
 		int choice;
 		while(true) {
 			if(provider.login) {
+				/*
+				System.out.println();
+				System.out.println("1) View all files");
+				System.out.println("2) View by category");
+				System.out.println("3) View files by rank"); 
+				System.out.println("4) View all purchasing history");
+				System.out.println("5) View purged files");
+				System.out.println("6) Search by key");
+				System.out.println("7) Download");
+				System.out.println("8) Show bills");
+				System.out.println("9) Cancel subscription");
+				System.out.println("10) Delete account");
+				System.out.println("11) Logout");
+				choice = sc.nextInt();
+				*/
+
+
+
+
 				System.out.println();
 				System.out.println("1) View all files");
 				System.out.println("2) View by category"); 
-				System.out.println("3) Upload");
-				System.out.println("4) Update");
-				System.out.println("5) See statistics");
-				System.out.println("6) Delete account");
-				System.out.println("7) logout");
+				System.out.println("3) View files by rank"); 
+				System.out.println("4) View all purchasing history");
+				System.out.println("5) View purged files");
+				System.out.println("6) Upload");
+				System.out.println("7) Update");
+				System.out.println("8) See statistics");
+				System.out.println("9) Cancel subscription");
+				System.out.println("10) Delete account");
+				System.out.println("11) Logout");
 				choice = sc.nextInt();
 				if(choice == 1) {
 					provider.printAllItem();
@@ -109,15 +149,27 @@ public class MyProject {
 					provider.printByCategory();
 				}
 				else if(choice == 3) {
-					provider.upload();
+					provider.printByRank();
 				}
 				else if(choice == 4) {
-					provider.update();
+					provider.printHistory();
 				}
 				else if(choice == 5) {
-					provider.printStat();
+					provider.printPurged();
 				}
 				else if(choice == 6) {
+					provider.upload();
+				}
+				else if(choice == 7) {
+					provider.update();
+				}
+				else if(choice == 8) {
+					provider.printStat();
+				}
+				else if(choice == 9) {
+					provider.cancel_subscription();
+				}
+				else if(choice == 10) {
 					provider.delete_account();
 				}
 				else {

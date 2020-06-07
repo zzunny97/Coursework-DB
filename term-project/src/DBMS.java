@@ -83,25 +83,90 @@ public class DBMS {
 		}
 	}
 
+	void printByRank() {
+		try {
+			String query = "select provider_id, item_name, count(*) as download_num from history group by provider_id and item_name order by download_num";
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			System.out.println("name\tauthor\tdownload_num");
+			while(rs.next()) {
+				String rname  = rs.getString("item_name");
+				String rauthor = rs.getString("provider_id");
+				int rdownloaded = rs.getInt("download_num");
+				System.out.println(rname+"\t"+rauthor+"\t"+String.valueOf(rdownloaded));
+			}
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+	}
+
+	void printHistory() {
+		try {
+			String query = "select * from history";
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			System.out.println("item_name\tauthor\tpurchaser\ttime");
+			while(rs.next()) {
+				String rname  = rs.getString("item_name");
+				String rauthor = rs.getString("provider_id");
+				String rpurchaser = rs.getString("user_id");
+				String rtime = rs.getString("time");
+				System.out.println(rname+"\t"+rauthor+"\t"+rpurchaser+"\t"+rtime);
+			}
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+	}
+
+	void printPurged() {
+		try {
+			String query = "select * from purged";
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			System.out.println("name\tauthor\tpurged_time");
+			while(rs.next()) {
+				String rname  = rs.getString("name");
+				String rauthor = rs.getString("author");
+				String purged_time = rs.getString("purged_time");
+				System.out.println(rname+"\t"+rauthor+"\t"+purged_time);
+			}
+		} catch(SQLException sqle) {
+			System.out.println("SQLException: " + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
+
+	}
+
 	void printAllItem() {
 		try {
 			String query = "select * from item";
 			pstmt = conn.prepareStatement(query);
 			rs = pstmt.executeQuery();
 
-			System.out.println("name\ttype\tauthor\tcategory\tarchitecure\tos\tsize\tdescription\tlast_updated");
+			System.out.println("name\ttype\tauthor\t\tcategory\tsize\tdescription\tlast_updated");
 			while(rs.next()) {
 				String rname  = rs.getString("name");
 				String rtype = rs.getString("type");
 				String rauthor = rs.getString("author");
 				String rcategory =  rs.getString("category");
-				String rarchitecture =  rs.getString("architecture");
-				String ros =  rs.getString("os");
 				int rsize = rs.getInt("size");
 				String rdescription = rs.getString("description");
 				String rlast_updated = rs.getString("last_updated");
 
-				System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+rarchitecture+"\t"+ros+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
+				System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
 			}
 		} catch(SQLException sqle) {
 			System.out.println("SQLException: " + sqle);
@@ -133,18 +198,16 @@ public class DBMS {
 				pstmt.setString(1, category);
 				rs = pstmt.executeQuery();
 
-				System.out.println("name\ttype\tauthor\tcategory\tarchitecure\tos\tsize\tdescription\tlast_updated");
+				System.out.println("name\ttype\tauthor\t\tcategory\tsize\tdescription\tlast_updated");
 				while(rs.next()) {
 					String rname  = rs.getString("name");
 					String rtype = rs.getString("type");
 					String rauthor = rs.getString("author");
 					String rcategory =  rs.getString("category");
-					String rarchitecture =  rs.getString("architecture");
-					String ros =  rs.getString("os");
 					int rsize = rs.getInt("size");
 					String rdescription = rs.getString("description");
 					String rlast_updated = rs.getString("last_updated");
-					System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+rarchitecture+"\t"+ros+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
+					System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
 
 				}
 			}
@@ -155,7 +218,41 @@ public class DBMS {
 			System.out.println("Exception: " + e);
 			System.exit(1);
 		}
+	}
 
+	void printAllItemByKey() {
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Type any key you want to find about: " );
+		String key = sc.nextLine();
+
+		try {
+			String query = "select * from item natural join prereq"; //where type=? or architecture=? or os=? or description=?";
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			System.out.println("name\ttype\tauthor\t\tcategory\tsize\tarchitecture\tos\tdescription\tlast_updated");
+			while(rs.next()) {
+				String rname  = rs.getString("name");
+				String rtype = rs.getString("type");
+				String rauthor = rs.getString("author");
+				String rcategory =  rs.getString("category");
+				int rsize = rs.getInt("size");
+				String rarchitecture = rs.getString("architecture");
+				String ros = rs.getString("os");
+				String rdescription = rs.getString("description");
+				String rlast_updated = rs.getString("last_updated");
+				if(rname.contains(key) || rtype.contains(key) || rauthor.contains(key) || rcategory.contains(key) || rarchitecture.contains(key) || ros.contains(key) || rdescription.contains(key)) {
+					System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+rarchitecture+"\t"+ros+"\t"+rdescription+"\t"+rlast_updated);
+				}
+
+			}
+		} catch(SQLException sqle) {
+			System.out.println("SQLException:/" + sqle);
+			System.exit(1);
+		} catch(Exception e) {
+			System.out.println("Exception: " + e);
+			System.exit(1);
+		}
 	}
 
 	void printByAuthor(String author) {
@@ -166,18 +263,16 @@ public class DBMS {
 			pstmt.setString(1, author);
 			rs = pstmt.executeQuery();
 
-			System.out.println("name\ttype\tauthor\tcategory\tarchitecure\tos\tsize\tdescription\tlast_updated");
+			System.out.println("name\ttype\tauthor\t\tcategory\tsize\tdescription\tlast_updated");
 			while(rs.next()) {
 				String rname  = rs.getString("name");
 				String rtype = rs.getString("type");
 				String rauthor = rs.getString("author");
 				String rcategory =  rs.getString("category");
-				String rarchitecture =  rs.getString("architecture");
-				String ros =  rs.getString("os");
 				int rsize = rs.getInt("size");
 				String rdescription = rs.getString("description");
 				String rlast_updated = rs.getString("last_updated");
-				System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+rarchitecture+"\t"+ros+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
+				System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
 
 			}
 
@@ -226,7 +321,8 @@ class User extends DBMS {
 		//SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
 		try {
-			pstmt = conn.prepareStatement("insert into user (id, password, name, address, account_number, phone_number, birthday) values(?,?,?,?,?,?,?)");
+			pstmt = conn.prepareStatement(
+					"insert into user (id, password, name, address, account_number, phone_number, birthday) values(?,?,?,?,?,?,?)");
 			pstmt.setString(1, id);
 			pstmt.setString(2, password);
 			pstmt.setString(3, name);
@@ -412,7 +508,7 @@ class User extends DBMS {
 		String answer = sc.nextLine();
 		if(answer.equals("Y")) {
 			try {
-				String query = "select end_date from user_bill where id = ?";
+				String query = "select end_date from user where id = ?";
 				pstmt = conn.prepareStatement(query);
 				pstmt.setString(1, id);
 				rs = pstmt.executeQuery();
@@ -450,6 +546,7 @@ class User extends DBMS {
 				System.out.println("Registered date: " + date_joined);
 				System.out.println("Last subscription date: " + start_date);
 				System.out.println("End subscription date: " + end_date + " (If you do not cancel subscription, it will be subscribed automatically");
+				System.out.println("Subscription fee is $10 per month");
 				String query2 = "select provider_id, item_name, time,price from history where user_id = ?";
 				pstmt = conn.prepareStatement(query2);
 				pstmt.setString(1, id);
@@ -536,7 +633,8 @@ class Provider extends DBMS {
 
 
 		try {
-			pstmt = conn.prepareStatement("insert into provider (id, password, name, address, account_number, phone_number, birthday) values(?,?,?,?,?,?,?)");
+			pstmt = conn.prepareStatement(
+					"insert into provider (id, password, name, address, account_number, phone_number, birthday) values(?,?,?,?,?,?,?)");
 			pstmt.setString(1, id);
 			pstmt.setString(2, password);
 			pstmt.setString(3, name);
@@ -667,10 +765,6 @@ class Provider extends DBMS {
 			file_type = sc.nextLine();
 			System.out.print("File category: ");
 			file_category = sc.nextLine();
-			System.out.print("Machine architecture required(mac, pc, workstation type, all, etc..): ");
-			architecture = sc.nextLine();
-			System.out.print("Os required (mac, windows, all, etc...): ");
-			os = sc.nextLine();
 			System.out.print("Short description: ");
 			description = sc.nextLine();
 
@@ -684,16 +778,30 @@ class Provider extends DBMS {
 			System.out.println("Successfully uploaded to hub");
 			try {
 				pstmt = conn.prepareStatement(
-						"insert into item (name, type, author, category, architecture, os, size,description) values(?,?,?,?,?,?,?,?)");
+						"insert into item (name, type, author, category, size,description) values(?,?,?,?,?,?)");
 				pstmt.setString(1, file_name);
 				pstmt.setString(2, file_type);
 				pstmt.setString(3, id);
 				pstmt.setString(4, file_category);
-				pstmt.setString(5, architecture);
-				pstmt.setString(6, os);
-				pstmt.setInt(7, file_size);
-				pstmt.setString(8, description);
+				pstmt.setInt(5, file_size);
+				pstmt.setString(6, description);
 				pstmt.executeUpdate();
+
+
+				System.out.print("If the submitted file has any pre-requirements(architecture, os)? \ntype[Y/N]: ");
+				String ans = sc.nextLine();
+				if(ans.equals("Y")) {
+					System.out.print("Machine architecture required(mac, pc, workstation type, all, etc..): ");
+					architecture = sc.nextLine();
+					System.out.print("OS required (mac, windows, all, etc...): ");
+					os = sc.nextLine();
+					pstmt = conn.prepareStatement("insert into prereq (name, author, architecture, os) values(?,?,?,?)");
+					pstmt.setString(1, file_name);
+					pstmt.setString(2, id);
+					pstmt.setString(3, architecture);
+					pstmt.setString(4, os);
+					pstmt.executeUpdate();
+				}
 				System.out.println("Upload complete");
 			} catch(SQLException sqle) {
 				System.out.println("SQLException: " + sqle);
@@ -732,14 +840,27 @@ class Provider extends DBMS {
 				String rname = rs.getString("name");
 				String rtype = rs.getString("type");
 				String rcategory = rs.getString("category");
+				String rarch="", ros="";
 				String rauthor = rs.getString("author");
-				String rarchitecture = rs.getString("architecture");
-				String ros = rs.getString("os");
 				String rdescription = rs.getString("description");
+				boolean prereq = false;
+
+				pstmt = conn.prepareStatement("select architecture, os from prereq where name = ? and author = ?");
+				pstmt.setString(1, rname);
+				pstmt.setString(2, id);
+				rs = pstmt.executeQuery();
+
+				if(rs.next()) {
+					rarch = rs.getString("architecture");
+					ros = rs.getString("os");
+					prereq = true;
+				}
+
 
 				System.out.println("Current contents of your item");
-				System.out.println("File name: " + rname + "\nType: " + rtype + "\nCategory: "+rcategory+"\nArtchitecture: " + rarchitecture
-						+ "\nOS: " + ros + "\nDescription: " + rdescription);
+				System.out.println("File name: " + rname + "\nType: " + rtype + "\nCategory: "+rcategory+"\nArchitecture: " + rarch + "\nOS: " + ros + "\nDescription: " + rdescription);
+
+				System.out.println("Choose what you want to update");
 
 				System.out.println("1) Name");
 				System.out.println("2) Type");
@@ -787,25 +908,36 @@ class Provider extends DBMS {
 
 				}
 				else if(answer == 4) { // architecture
-					System.out.print("Type update architecture: ");
-					String str = sc.nextLine();
-					query2 = "update item set architecture = ? where name = ? and author = ?";
-					pstmt = conn.prepareStatement(query2);
-					pstmt.setString(1, str); 
-					pstmt.setString(2, rname);
-					pstmt.setString(3, rauthor);
-					pstmt.executeUpdate();
+					if(prereq) {
+						System.out.print("Type update architecture: ");
+						String str = sc.nextLine();
+						query2 = "update prereq set architecture = ? where name = ? and author = ?";
+						pstmt = conn.prepareStatement(query2);
+						pstmt.setString(1, str); 
+						pstmt.setString(2, rname);
+						pstmt.setString(3, rauthor);
+						pstmt.executeUpdate();
+					}
+					else {
+						System.out.println("Prerequisite not defined");
+					}
 
 				}
 				else if(answer == 5) { // os
-					System.out.print("Type update os: ");
-					String str = sc.nextLine();
-					query2 = "update item set os = ? where name = ? and author = ?";
-					pstmt = conn.prepareStatement(query2);
-					pstmt.setString(1, str); 
-					pstmt.setString(2, rname);
-					pstmt.setString(3, rauthor);
-					pstmt.executeUpdate();
+					if(prereq) {
+						System.out.print("Type update os: ");
+						String str = sc.nextLine();
+						query2 = "update prereq set os = ? where name = ? and author = ?";
+						pstmt = conn.prepareStatement(query2);
+						pstmt.setString(1, str); 
+						pstmt.setString(2, rname);
+						pstmt.setString(3, rauthor);
+						pstmt.executeUpdate();
+					}
+					else {
+						System.out.println("Prerequisite not defined");
+
+					}
 				}
 				else if(answer == 6) { // description
 					System.out.print("Type update description: ");
@@ -864,6 +996,20 @@ class Provider extends DBMS {
 
 	void printStat() {
 		try {
+			System.out.println("Joining_fee: " + String.valueOf(JOINING_FEE));
+			System.out.println("=========== You should pay =========");
+			System.out.println("$1 per byte for local storage fee");
+			pstmt = conn.prepareStatement("select name, size from item where author = ?");
+			pstmt.setString(1,id);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String rname = rs.getString("name");
+				int rsize = rs.getInt("size");
+				System.out.println(rname + ": $" + rsize);
+			}
+
+
+			System.out.println("=========== You earned =========");
 			String ruser_id, rprovider_id, ritem_name;
 			float rprice;
 			float total_earn = 0;
@@ -888,7 +1034,7 @@ class Provider extends DBMS {
 			pstmt.setString(1,id);
 			rs = pstmt.executeQuery();
 			System.out.println("If your uploaded file is not accessed by anyone more than 7 days, the item is purged from market.");
-			System.out.println("Purged item list");
+			System.out.println("========= Purged item ==========");
 			while(rs.next()) {
 				ritem_name = rs.getString("item_name");
 				String time = rs.getString("purged_time");
@@ -910,7 +1056,7 @@ class Provider extends DBMS {
 		String answer = sc.nextLine();
 		if(answer.equals("Y")) {
 			try {
-				String query = "select end_date from provider_bill where id = ?";
+				String query = "select end_date from provider where id = ?";
 				pstmt = conn.prepareStatement(query);
 				pstmt.setString(1, id);
 				rs = pstmt.executeQuery();
