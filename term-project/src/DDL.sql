@@ -71,6 +71,6 @@ create table purged
 	 provider_id 			varchar(20) not null,
 	 item_name				varchar(20) not null,
 	 purged_time			timestamp default current_timestamp,
-	 primary key(provider_id, item_name)
+	 foreign key(provider_id) references provider(id) on delete cascade
 	);
 
