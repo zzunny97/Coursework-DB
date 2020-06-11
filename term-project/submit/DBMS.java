@@ -157,7 +157,7 @@ public class DBMS {
 			pstmt = conn.prepareStatement(query);
 			rs = pstmt.executeQuery();
 
-			System.out.println("name\ttype\tauthor\t\tcategory\tsize\tdescription\tlast_updated");
+			System.out.println("name\ttype\tauthor\tcategory\tsize\tdescription\tlast_updated");
 			while(rs.next()) {
 				String rname  = rs.getString("name");
 				String rtype = rs.getString("type");
@@ -166,6 +166,8 @@ public class DBMS {
 				int rsize = rs.getInt("size");
 				String rdescription = rs.getString("description");
 				String rlast_updated = rs.getString("last_updated");
+
+				//System.out.printf("%20s\t%20s\t%20s\t%20s\t%20s\t%20s\t%20s\n", rname, rtype, rauthor, rcategory, String.valueOf(rsize), rdescription, rlast_updated);
 
 				System.out.println(rname+"\t"+rtype+"\t"+rauthor+"\t"+rcategory+"\t"+String.valueOf(rsize)+"\t"+rdescription+"\t"+rlast_updated);
 			}
@@ -574,13 +576,15 @@ class User extends DBMS {
 				String end_date    = rs.getString("end_date");
 				System.out.println("Registered date: " + date_joined);
 				System.out.println("Last subscription date: " + start_date);
-				System.out.println("End subscription date: " + end_date + " (If you do not cancel subscription, it will be subscribed automatically");
+				System.out.println("End subscription date: " + end_date + " (If you do not cancel subscription, it will be resubscribed automatically");
+				System.out.println("=====================================================================");
 				System.out.println("Subscription fee is $10 per month");
 				String query2 = "select provider_id, item_name, time,price from history where user_id = ?";
 				pstmt = conn.prepareStatement(query2);
 				pstmt.setString(1, id);
 				rs = pstmt.executeQuery();
 				System.out.println("Price is determined by $0.0025 * size");
+				System.out.println("=====================================================================");
 				float total_price = 0;
 				while(rs.next()) {
 					String provider_id = rs.getString("provider_id");
@@ -588,9 +592,11 @@ class User extends DBMS {
 					String time = rs.getString("time");
 					float price = rs.getFloat("price");
 					total_price += price;
-					System.out.println(item_name + " by "+ provider_id + " at " + time + ": $" + String.valueOf(price));
+					System.out.println(time+"\t"+provider_id+"\t"+item_name+"\t$"+String.valueOf(price));
+					//System.out.println(item_name + " by "+ provider_id + " at " + time + ": $" + String.valueOf(price));
 				}
-				System.out.println("Total price: " + String.valueOf(total_price));
+				System.out.println("=====================================================================");
+				System.out.println("Total price: $" + String.valueOf(total_price+10));
 			}
 		} catch(SQLException sqle) {
 			System.out.println("SQLException: " + sqle);
@@ -1024,6 +1030,12 @@ class Provider extends DBMS {
 						pstmt.setString(2, rname);
 						pstmt.setString(3, rauthor);
 						pstmt.executeUpdate();
+						pstmt = conn.prepareStatement(
+								"update history set price = ? where provider_id = ? and item_name = ?");
+						pstmt.setFloat(1, file_size * (float)0.0025);
+						pstmt.setString(2, id);
+						pstmt.setString(3, rname);
+						pstmt.executeUpdate();
 						System.out.println("Reupload complete");
 					}
 					else {
@@ -1051,15 +1063,17 @@ class Provider extends DBMS {
 
 	void printStat() {
 		try {
-			System.out.println("Joining_fee: " + String.valueOf(JOINING_FEE));
+			System.out.println("Joining_fee: $" + String.valueOf(JOINING_FEE));
 			System.out.println("=========== You should pay =========");
 			System.out.println("$1 per byte for local storage fee");
 			pstmt = conn.prepareStatement("select name, size from item where author = ?");
 			pstmt.setString(1,id);
 			rs = pstmt.executeQuery();
+			long pay_to_admin = 0;
 			while(rs.next()) {
 				String rname = rs.getString("name");
 				int rsize = rs.getInt("size");
+				pay_to_admin += rsize;
 				System.out.println(rname + ": $" + rsize);
 			}
 
@@ -1082,7 +1096,6 @@ class Provider extends DBMS {
 				total_earn += rprice;
 				System.out.println(ruser_id + "\t" + rprovider_id + "\t" + ritem_name+"\t$"+String.valueOf(rprice));
 			}
-			System.out.println("Total you earned: " + String.valueOf(total_earn));
 
 			query = "select * from purged where provider_id=?";
 			pstmt = conn.prepareStatement(query);
@@ -1095,6 +1108,10 @@ class Provider extends DBMS {
 				String time = rs.getString("purged_time");
 				System.out.println(ritem_name + "\t" + time);
 			}
+
+			System.out.println("================================");
+			System.out.println("Total you earned: $" + String.valueOf(total_earn));
+			System.out.println("You should pay $" + String.valueOf(pay_to_admin + JOINING_FEE) );
 		} catch(SQLException sqle) {
 			System.out.println("SQLException: " + sqle);
 			System.exit(1);
