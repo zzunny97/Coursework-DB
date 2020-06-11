@@ -63,7 +63,7 @@ create table prereq
 	 architecture	varchar(20) not null,
 	 os				varchar(20) not null,
 	 foreign key(name) references item(name) on delete cascade on update cascade,
-	 foreign key(author) references provider(id) on delete cascade
+	 foreign key(author) references provider(id) on delete cascade 
 	);
 
 create table purged
@@ -74,9 +74,3 @@ create table purged
 	 foreign key(provider_id) references provider(id) on delete cascade
 	);
 
-create table canceled_account
-	(
-	 id						varchar(20) not null,
-	 end_date				date not null,
-	 primary key(id)
-	);

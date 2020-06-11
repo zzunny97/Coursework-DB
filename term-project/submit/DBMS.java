@@ -86,7 +86,7 @@ public class DBMS {
 
 	void printByRank() {
 		try {
-			String query = "select provider_id, item_name, count(*) as download_num from history group by provider_id and item_name order by download_num";
+			String query = "select provider_id, item_name, count(*) as download_num from history group by provider_id, item_name order by download_num desc";
 			pstmt = conn.prepareStatement(query);
 			rs = pstmt.executeQuery();
 
@@ -1030,12 +1030,14 @@ class Provider extends DBMS {
 						pstmt.setString(2, rname);
 						pstmt.setString(3, rauthor);
 						pstmt.executeUpdate();
+						/*
 						pstmt = conn.prepareStatement(
 								"update history set price = ? where provider_id = ? and item_name = ?");
 						pstmt.setFloat(1, file_size * (float)0.0025);
 						pstmt.setString(2, id);
 						pstmt.setString(3, rname);
 						pstmt.executeUpdate();
+						*/
 						System.out.println("Reupload complete");
 					}
 					else {
@@ -1046,7 +1048,9 @@ class Provider extends DBMS {
 				}
 				else{
 					System.out.println("Wrong answer, return");
+					return;
 				}
+				System.out.println("Update complete");
 			}
 			else {
 				System.out.println("No such item");
